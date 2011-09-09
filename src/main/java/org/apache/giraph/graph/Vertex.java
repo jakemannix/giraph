@@ -18,6 +18,11 @@
 
 package org.apache.giraph.graph;
 
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.log4j.Logger;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -25,13 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
-import org.apache.log4j.Logger;
-
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.mapreduce.Mapper;
-
 
 /**
  * User applications should all subclass {@link Vertex}.  Package access
@@ -43,24 +41,11 @@ import org.apache.hadoop.mapreduce.Mapper;
  * @param <M> Message value
  */
 @SuppressWarnings("rawtypes")
-public abstract class Vertex<
-        I extends WritableComparable,
-        V extends Writable,
-        E extends Writable,
-        M extends Writable>
-        implements MutableVertex<I, V, E, M> {
+public abstract class Vertex<I extends WritableComparable, V extends Writable,
+        E extends Writable, M extends Writable>
+        extends MutableVertex<I, V, E, M> {
     /** Class logger */
     private static final Logger LOG = Logger.getLogger(Vertex.class);
-    /** Class-wide superstep */
-    private static long superstep = 0;
-    /** Class-wide number of vertices */
-    private static long numVertices = -1;
-    /** Class-wide number of edges */
-    private static long numEdges = -1;
-    /** Class-wide map context */
-    private static Mapper.Context context = null;
-    /** Class-wide BSP Mapper for this Vertex */
-    private static GraphMapper<?, ? ,?, ?> graphMapper = null;
     /** Vertex id */
     private I vertexId = null;
     /** Vertex value */
@@ -110,6 +95,11 @@ public abstract class Vertex<
     }
 
     @Override
+    public long getSuperstep() {
+        return getGraphState().getSuperstep();
+    }
+
+    @Override
     public final void setVertexId(I vertexId) {
         this.vertexId = vertexId;
     }
@@ -117,32 +107,6 @@ public abstract class Vertex<
     @Override
     public final I getVertexId() {
         return vertexId;
-    }
-
-    /**
-     * Set the GraphMapper for this vertex (internal use).
-     *
-     * @param graphMapper Mapper to use for communication
-     */
-    final static <I extends WritableComparable,
-            V extends Writable, E extends Writable,
-            M extends Writable> void
-            setGraphMapper(GraphMapper<I, V, E, M> graphMapper) {
-        Vertex.graphMapper = graphMapper;
-    }
-
-    /**
-     * Set the global superstep for all the vertices (internal use)
-     *
-     * @param superstep New superstep
-     */
-    static void setSuperstep(long superstep) {
-        Vertex.superstep = superstep;
-    }
-
-    @Override
-    public final long getSuperstep() {
-        return superstep;
     }
 
     @Override
@@ -155,32 +119,14 @@ public abstract class Vertex<
         this.vertexValue = vertexValue;
     }
 
-    /**
-     * Set the total number of vertices from the last superstep.
-     *
-     * @param numVertices Aggregate vertices in the last superstep
-     */
-    static void setNumVertices(long numVertices) {
-        Vertex.numVertices = numVertices;
-    }
-
     @Override
     public final long getNumVertices() {
-        return numVertices;
-    }
-
-    /**
-     * Set the total number of edges from the last superstep.
-     *
-     * @param numEdges Aggregate edges in the last superstep
-     */
-    static void setNumEdges(long numEdges) {
-        Vertex.numEdges = numEdges;
+        return getGraphState().getNumVertices();
     }
 
     @Override
     public final long getNumEdges() {
-        return numEdges;
+        return getGraphState().getNumEdges();
     }
 
     @Override
@@ -188,15 +134,14 @@ public abstract class Vertex<
         return destEdgeMap;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public final void sendMsg(I id, M msg) {
         if (msg == null) {
             throw new IllegalArgumentException(
                 "sendMsg: Cannot send null message to " + id);
         }
-        ((GraphMapper<I, V, E, M>) graphMapper).
-            getWorkerCommunications().sendMessageReq(id, msg);
+        getGraphState().getGraphMapper().getWorkerCommunications().
+            sendMessageReq(id, msg);
     }
 
     @Override
@@ -213,40 +158,36 @@ public abstract class Vertex<
     @Override
     public MutableVertex<I, V, E, M> instantiateVertex() {
         Vertex<I, V, E, M> mutableVertex =
-            BspUtils.<I, V, E, M>createVertex(getContext().getConfiguration());
+            BspUtils.createVertex(getContext().getConfiguration(),
+                                  getGraphState());
         return mutableVertex;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void addVertexRequest(MutableVertex<I, V, E, M> vertex)
             throws IOException {
-        ((GraphMapper<I, V, E, M>) graphMapper).
-            getWorkerCommunications().addVertexReq(vertex);
+        getGraphState().getGraphMapper().getWorkerCommunications().
+            addVertexReq(vertex);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void removeVertexRequest(I vertexId) throws IOException {
-        ((GraphMapper<I, V, E, M>) graphMapper).
-            getWorkerCommunications().removeVertexReq(vertexId);
+        getGraphState().getGraphMapper().getWorkerCommunications().
+            removeVertexReq(vertexId);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void addEdgeRequest(I vertexIndex,
                                Edge<I, E> edge) throws IOException {
-        ((GraphMapper<I, V, E, M>) graphMapper).
-            getWorkerCommunications().addEdgeReq(vertexIndex, edge);
+        getGraphState().getGraphMapper().getWorkerCommunications().
+            addEdgeReq(vertexIndex, edge);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void removeEdgeRequest(I sourceVertexId,
                                   I destVertexId) throws IOException {
-        ((GraphMapper<I, V, E, M>) graphMapper).
-            getWorkerCommunications().removeEdgeReq(sourceVertexId,
-                                                    destVertexId);
+        getGraphState().getGraphMapper().getWorkerCommunications().
+            removeEdgeReq(sourceVertexId, destVertexId);
     }
 
     @Override
@@ -262,12 +203,12 @@ public abstract class Vertex<
     @Override
     final public void readFields(DataInput in) throws IOException {
         vertexId =
-            BspUtils.<I>createVertexIndex(getContext().getConfiguration());
+            BspUtils.createVertexIndex(getContext().getConfiguration());
         vertexId.readFields(in);
         boolean hasVertexValue = in.readBoolean();
         if (hasVertexValue) {
             vertexValue =
-                BspUtils.<V>createVertexValue(getContext().getConfiguration());
+                BspUtils.createVertexValue(getContext().getConfiguration());
             vertexValue.readFields(in);
         }
         long edgeMapSize = in.readLong();
@@ -280,7 +221,7 @@ public abstract class Vertex<
         long msgListSize = in.readLong();
         for (long i = 0; i < msgListSize; ++i) {
             M msg =
-                BspUtils.<M>createMessageValue(getContext().getConfiguration());
+                BspUtils.createMessageValue(getContext().getConfiguration());
             msg.readFields(in);
             msgList.add(msg);
         }
@@ -310,18 +251,20 @@ public abstract class Vertex<
             String name,
             Class<? extends Aggregator<A>> aggregatorClass)
             throws InstantiationException, IllegalAccessException {
-        return graphMapper.getAggregatorUsage().registerAggregator(
-            name, aggregatorClass);
+        return getGraphState().getGraphMapper().getAggregatorUsage().
+            registerAggregator(name, aggregatorClass);
     }
 
     @Override
     public final Aggregator<? extends Writable> getAggregator(String name) {
-        return graphMapper.getAggregatorUsage().getAggregator(name);
+        return getGraphState().getGraphMapper().getAggregatorUsage().
+            getAggregator(name);
     }
 
     @Override
     public final boolean useAggregator(String name) {
-        return graphMapper.getAggregatorUsage().useAggregator(name);
+        return getGraphState().getGraphMapper().getAggregatorUsage().
+            useAggregator(name);
     }
 
     @Override
@@ -329,12 +272,8 @@ public abstract class Vertex<
         return msgList;
     }
 
-    public final Mapper<?, ?, ?, ?>.Context getContext() {
-        return context;
-    }
-
-    final static void setContext(Mapper<?, ?, ?, ?>.Context context) {
-        Vertex.context = context;
+    public final Mapper.Context getContext() {
+        return getGraphState().getContext();
     }
 
     @Override
