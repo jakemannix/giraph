@@ -281,6 +281,8 @@ under the License.
             <!-- generated content -->
             <exclude>**/target/**</exclude>
             <exclude>_bsp/**</exclude>
+            <exclude>**/.svn/**</exclude>
+            <exclude>**/.git/**</exclude>
          </excludes>
       </configuration>
     </plugin>
@@ -420,6 +422,11 @@ under the License.
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-core-asl</artifactId>
       <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.mahout</groupId>
+      <artifactId>mahout-collections</artifactId>
+      <version>1.0</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.jackson</groupId>

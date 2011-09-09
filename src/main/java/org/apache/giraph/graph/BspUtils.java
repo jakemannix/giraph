@@ -214,7 +214,7 @@ public class BspUtils {
         return (Class<? extends Vertex<I, V, E, M>>)
                 conf.getClass(GiraphJob.VERTEX_CLASS,
                               null,
-                              Vertex.class);
+                              BasicVertex.class);
     }
 
     /**

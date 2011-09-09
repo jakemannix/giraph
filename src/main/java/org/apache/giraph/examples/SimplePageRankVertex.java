@@ -18,7 +18,12 @@
 
 package org.apache.giraph.examples;
 
-import org.apache.giraph.graph.*;
+import org.apache.giraph.graph.BasicVertex;
+import org.apache.giraph.graph.Edge;
+import org.apache.giraph.graph.LongDoubleFloatDoubleVertex;
+import org.apache.giraph.graph.MutableVertex;
+import org.apache.giraph.graph.VertexReader;
+import org.apache.giraph.graph.VertexWriter;
 import org.apache.giraph.lib.TextVertexOutputFormat;
 import org.apache.giraph.lib.TextVertexOutputFormat.TextVertexWriter;
 import org.apache.hadoop.io.DoubleWritable;
@@ -36,8 +41,7 @@ import java.util.Iterator;
 /**
  * Demonstrates the basic Pregel PageRank implementation.
  */
-public class SimplePageRankVertex extends
-        Vertex<LongWritable, DoubleWritable, FloatWritable, DoubleWritable> {
+public class SimplePageRankVertex extends LongDoubleFloatDoubleVertex {
     /** User can access this sum after the application finishes if local */
     public static long finalSum;
     /** User can access this min after the application finishes if local */
