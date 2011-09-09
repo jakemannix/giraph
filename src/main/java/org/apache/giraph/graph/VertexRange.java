@@ -18,24 +18,16 @@
 
 package org.apache.giraph.graph;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 import net.iharder.Base64;
-
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.*;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Defines a vertex index range and assigns responsibility to a particular
@@ -68,8 +60,8 @@ public class VertexRange<I extends WritableComparable,
     /** Checkpoint file prefix (null if not recovering from a checkpoint) */
     private String checkpointfilePrefix = null;
     /** Vertex map for this range (keyed by index) */
-    private final SortedMap<I, Vertex<I, V, E, M>> vertexMap =
-        new TreeMap<I, Vertex<I, V, E, M>>();
+    private final SortedMap<I, MutableVertex<I, V, E, M>> vertexMap =
+        new TreeMap<I, MutableVertex<I, V, E, M>>();
     /** Class logger */
     private static final Logger LOG = Logger.getLogger(VertexRange.class);
 
@@ -207,7 +199,7 @@ public class VertexRange<I extends WritableComparable,
      *
      * @return Map of vertices (keyed by index)
      */
-    public SortedMap<I, Vertex<I, V, E, M>> getVertexMap() {
+    public SortedMap<I, MutableVertex<I, V, E, M>> getVertexMap() {
         return vertexMap;
     }
 

@@ -209,7 +209,7 @@ public class BspUtils {
                    V extends Writable,
                    E extends Writable,
                    M extends Writable>
-            Class<? extends Vertex<I, V, E, M>>
+            Class<? extends BasicVertex<I, V, E, M>>
             getVertexClass(Configuration conf) {
         return (Class<? extends Vertex<I, V, E, M>>)
                 conf.getClass(GiraphJob.VERTEX_CLASS,
@@ -225,12 +225,12 @@ public class BspUtils {
      */
     @SuppressWarnings("rawtypes")
     public static <I extends WritableComparable, V extends Writable,
-            E extends Writable, M extends Writable> Vertex<I, V, E, M>
+            E extends Writable, M extends Writable> BasicVertex<I, V, E, M>
             createVertex(Configuration conf,
             GraphState<I, V, E, M> graphState) {
-        Class<? extends Vertex<I, V, E, M>> vertexClass =
+        Class<? extends BasicVertex<I, V, E, M>> vertexClass =
             getVertexClass(conf);
-        Vertex<I, V, E, M> vertex =
+        BasicVertex<I, V, E, M> vertex =
             ReflectionUtils.newInstance(vertexClass, conf);
         vertex.setGraphState(graphState);
         return vertex;

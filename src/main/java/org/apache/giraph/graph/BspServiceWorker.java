@@ -313,7 +313,7 @@ public class BspServiceWorker<
                InstantiationException, IllegalAccessException {
         InputSplit inputSplit = getInputSplitForVertices(inputSplitPath);
 
-        List<Vertex<I, V, E, M>> vertexList =
+        List<MutableVertex<I, V, E, M>> vertexList =
             readVerticesFromInputSplit(inputSplit);
 
         if (LOG.isInfoEnabled()) {
@@ -381,18 +381,18 @@ public class BspServiceWorker<
      * @throws IOException
      * @throws InterruptedException
      */
-    private List<Vertex<I, V, E, M>> readVerticesFromInputSplit(
+    private List<MutableVertex<I, V, E, M>> readVerticesFromInputSplit(
             InputSplit inputSplit) throws IOException, InterruptedException {
-        List<Vertex<I, V, E, M>> vertexList =
-            new ArrayList<Vertex<I, V, E, M>>();
+        List<MutableVertex<I, V, E, M>> vertexList =
+            new ArrayList<MutableVertex<I, V, E, M>>();
         VertexInputFormat<I, V, E> vertexInputFormat =
             BspUtils.<I, V, E>createVertexInputFormat(getConfiguration());
         VertexReader<I, V, E> vertexReader =
             vertexInputFormat.createVertexReader(inputSplit, getContext());
         vertexReader.initialize(inputSplit, getContext());
-        Vertex<I, V, E, M> readerVertex =
-            BspUtils.<I, V, E, M>createVertex(
-                getConfiguration(), getGraphMapper().getGraphState());
+        MutableVertex<I, V, E, M> readerVertex =
+                (MutableVertex<I, V, E, M>) BspUtils.<I, V, E, M>createVertex(
+                        getConfiguration(), getGraphMapper().getGraphState());
         while (vertexReader.next(readerVertex)) {
             if (readerVertex.getVertexId() == null) {
                 throw new IllegalArgumentException(
@@ -418,7 +418,7 @@ public class BspServiceWorker<
                 }
             }
             vertexList.add(readerVertex);
-            readerVertex = BspUtils.<I, V, E, M>createVertex(getConfiguration(),
+            readerVertex = (MutableVertex<I, V, E, M>) BspUtils.createVertex(getConfiguration(),
                 getGraphMapper().getGraphState());
             getContext().progress();
         }
@@ -440,7 +440,7 @@ public class BspServiceWorker<
      * @throws IOException
      */
     private NavigableMap<I, VertexRange<I, V, E, M>> getVertexRanges(
-        InputSplit inputSplit, List<Vertex<I, V, E, M>> vertexList)
+        InputSplit inputSplit, List<MutableVertex<I, V, E, M>> vertexList)
         throws InstantiationException, IllegalAccessException, IOException {
 
         NavigableMap<I, VertexRange<I, V, E, M>> vertexRangeMap =
@@ -488,7 +488,7 @@ public class BspServiceWorker<
         // Now iterate over the defined ranges, placing each vertex in its range
         Iterator<I> maxIndexVertexMapIt = vertexRangeMap.keySet().iterator();
         I currentVertexIndexMax = maxIndexVertexMapIt.next();
-        for (Vertex<I, V, E, M> vertex : vertexList) {
+        for (MutableVertex<I, V, E, M> vertex : vertexList) {
             @SuppressWarnings("unchecked")
             int compareTo = vertex.getVertexId().compareTo(currentVertexIndexMax);
             if (compareTo > 0) {
@@ -507,7 +507,7 @@ public class BspServiceWorker<
             }
             VertexRange<I, V, E, M> range =
                 vertexRangeMap.get(currentVertexIndexMax);
-            SortedMap<I, Vertex<I, V, E, M>> vertexMap = range.getVertexMap();
+            SortedMap<I, MutableVertex<I, V, E, M>> vertexMap = range.getVertexMap();
             if (vertexMap.put(vertex.getVertexId(), vertex) != null) {
                 throw new IllegalStateException(
                     "loadVertices: Already contains vertex " +
@@ -1174,10 +1174,10 @@ public class BspServiceWorker<
         long vertexCount = dataStream.readLong();
         VertexRange<I, V, E, M> vertexRange = getVertexRangeMap().get(maxIndex);
         for (int i = 0; i < vertexCount; ++i) {
-            Vertex<I, V, E, M> vertex =
-                BspUtils.<I, V, E, M>createVertex(
-                    getConfiguration(),
-                    getGraphMapper().getGraphState());
+            MutableVertex<I, V, E, M> vertex =
+                    (MutableVertex<I, V, E, M>) BspUtils.<I, V, E, M>createVertex(
+                            getConfiguration(),
+                            getGraphMapper().getGraphState());
             vertex.readFields(dataStream);
             // Add the vertex
             if (vertexRange.getVertexMap().put(vertex.getVertexId(), vertex)
@@ -1362,7 +1362,7 @@ public class BspServiceWorker<
                     continue;
                 }
 
-                SortedMap<I, Vertex<I, V, E, M>> vertexMap =
+                SortedMap<I, MutableVertex<I, V, E, M>> vertexMap =
                     getVertexRangeMap().get(entry.getKey()).getVertexMap();
                 if (vertexMap.size() != 0) {
                     throw new RuntimeException(

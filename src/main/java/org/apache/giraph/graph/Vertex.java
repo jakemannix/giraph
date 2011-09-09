@@ -157,9 +157,9 @@ public abstract class Vertex<I extends WritableComparable, V extends Writable,
 
     @Override
     public MutableVertex<I, V, E, M> instantiateVertex() {
-        Vertex<I, V, E, M> mutableVertex =
-            BspUtils.createVertex(getContext().getConfiguration(),
-                                  getGraphState());
+        MutableVertex<I, V, E, M> mutableVertex =
+                (MutableVertex<I, V, E, M>) BspUtils.createVertex(getContext().getConfiguration(),
+                        getGraphState());
         return mutableVertex;
     }
 

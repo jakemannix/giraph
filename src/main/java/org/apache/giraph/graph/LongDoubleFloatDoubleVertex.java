@@ -1,10 +1,26 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.apache.giraph.graph;
 
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.log4j.Logger;
 import org.apache.mahout.math.list.DoubleArrayList;
 import org.apache.mahout.math.list.FloatArrayList;
@@ -14,13 +30,7 @@ import org.apache.mahout.math.map.OpenLongFloatHashMap;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.AbstractList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
+import java.util.*;
 
 public abstract class LongDoubleFloatDoubleVertex extends
     MutableVertex<LongWritable, DoubleWritable, FloatWritable, DoubleWritable> {
@@ -29,8 +39,8 @@ public abstract class LongDoubleFloatDoubleVertex extends
 
   private long vertexId;
   private double vertexValue;
-  private OpenLongFloatHashMap verticesWithEdgeValues;
-  private DoubleArrayList messageList;
+  private OpenLongFloatHashMap verticesWithEdgeValues = new OpenLongFloatHashMap();
+  private DoubleArrayList messageList = new DoubleArrayList();
   /** If true, do not do anymore computation on this vertex. */
   boolean halt = false;
 
@@ -58,7 +68,7 @@ public abstract class LongDoubleFloatDoubleVertex extends
 
   @Override
   public final boolean addEdge(Edge<LongWritable, FloatWritable> edge) {
-    edge.setConf(getContext().getConfiguration());
+    edge.setConf(getGraphState().getContext().getConfiguration());
     if (verticesWithEdgeValues.put(edge.getDestVertexId().get(), edge.getEdgeValue().get())) {
       if (LOG.isDebugEnabled()) {
         LOG.debug("addEdge: Vertex=" + vertexId +
@@ -120,10 +130,26 @@ public abstract class LongDoubleFloatDoubleVertex extends
   }
   @Override
   public MutableVertex<LongWritable, DoubleWritable, FloatWritable, DoubleWritable> instantiateVertex() {
-    Vertex<LongWritable, DoubleWritable, FloatWritable, DoubleWritable> mutableVertex =
-        BspUtils.<LongWritable, DoubleWritable, FloatWritable, DoubleWritable>createVertex(getContext().getConfiguration());
-    return mutableVertex;
+    LongDoubleFloatDoubleVertex vertex = (LongDoubleFloatDoubleVertex) BspUtils.createVertex(
+            getGraphState().getContext().getConfiguration(), getGraphState());
+    return vertex;
   }
+
+  @Override
+  public long getNumVertices() {
+    return getGraphState().getNumVertices();
+  }
+
+  @Override
+  public long getNumEdges() {
+    return getGraphState().getNumEdges();
+  }
+
+  @Override
+  public long getSuperstep() {
+    return getGraphState().getSuperstep();
+  }
+
 
   @SuppressWarnings("unchecked")
   @Override
@@ -225,6 +251,22 @@ public abstract class LongDoubleFloatDoubleVertex extends
       }
       @Override public int size() {
         return messageList.size();
+      }
+      @Override public boolean add(DoubleWritable dw) {
+        messageList.add(dw.get());
+        return true;
+      }
+      @Override public boolean addAll(Collection<? extends DoubleWritable> collection) {
+        for(DoubleWritable dw : collection) {
+          messageList.add(dw.get());
+        }
+        return true;
+      }
+      @Override public void clear() {
+        messageList.clear();
+      }
+      @Override public boolean isEmpty() {
+        return messageList.isEmpty();
       }
     };
   }

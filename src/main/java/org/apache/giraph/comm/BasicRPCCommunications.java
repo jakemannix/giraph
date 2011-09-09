@@ -18,45 +18,26 @@
 
 package org.apache.giraph.comm;
 
-import java.io.IOException;
-
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NavigableMap;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import org.apache.log4j.Logger;
-
 import org.apache.giraph.bsp.CentralizedServiceWorker;
-import org.apache.giraph.graph.GiraphJob;
-import org.apache.giraph.graph.BspUtils;
-import org.apache.giraph.graph.VertexCombiner;
-import org.apache.giraph.graph.Edge;
-import org.apache.giraph.graph.Vertex;
-import org.apache.giraph.graph.MutableVertex;
-import org.apache.giraph.graph.BasicVertex;
-import org.apache.giraph.graph.VertexMutations;
-import org.apache.giraph.graph.VertexRange;
-import org.apache.giraph.graph.VertexResolver;
+import org.apache.giraph.graph.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.ipc.RPC;
+import org.apache.hadoop.ipc.RPC.Server;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.log4j.Logger;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.util.*;
+import java.util.Map.Entry;
 
 /*if[HADOOP_FACEBOOK]
 import org.apache.hadoop.ipc.ProtocolSignature;
 end[HADOOP_FACEBOOK]*/
-import org.apache.hadoop.ipc.RPC;
-import org.apache.hadoop.ipc.RPC.Server;
-import org.apache.hadoop.mapreduce.Mapper;
 
 @SuppressWarnings("rawtypes")
 public abstract class BasicRPCCommunications<
@@ -1021,7 +1002,7 @@ end[HADOOP_FACEBOOK]*/
                     conf, service.getGraphMapper().getGraphState());
             VertexRange<I, V, E, M> vertexRange =
                 service.getVertexRange(service.getSuperstep() - 1, vertexIndex);
-            Vertex<I, V, E, M> originalVertex =
+            BasicVertex<I, V, E, M> originalVertex =
                 vertexRange.getVertexMap().get(vertexIndex);
             List<M> msgList = inMessages.get(vertexIndex);
             if (originalVertex != null) {

@@ -66,10 +66,7 @@ public class GraphMapper<I extends WritableComparable, V extends Writable,
     private boolean done = false;
     /** What kind of functions is this mapper doing? */
     private MapFunctions mapFunctions = MapFunctions.UNKNOWN;
-    /**
-     * Graph state for all vertices that is used for the duration of
-     * this mapper.
-     */
+
     private GraphState<I,V,E,M> graphState = new GraphState<I, V, E, M>();
 
     /** What kinds of functions to run on this mapper */
@@ -166,10 +163,10 @@ public class GraphMapper<I extends WritableComparable, V extends Writable,
      * @param conf Configuration to get the various classes
      */
     public void determineClassTypes(Configuration conf) {
-        Class<? extends Vertex<I, V, E, M>> vertexClass =
+        Class<? extends BasicVertex<I, V, E, M>> vertexClass =
             BspUtils.<I, V, E, M>getVertexClass(conf);
-        List<Class<?>> classList = ReflectionUtils.<Vertex>getTypeArguments(
-            Vertex.class, vertexClass);
+        List<Class<?>> classList = ReflectionUtils.<BasicVertex>getTypeArguments(
+            BasicVertex.class, vertexClass);
         Type vertexIndexType = classList.get(0);
         Type vertexValueType = classList.get(1);
         Type edgeValueType = classList.get(2);
@@ -514,10 +511,8 @@ public class GraphMapper<I extends WritableComparable, V extends Writable,
         }
         mapAlreadyRun = true;
 
-        graphState.setSuperstep(serviceWorker.getSuperstep()).
-            setContext(context).setGraphMapper(this).
-            setNumEdges(serviceWorker.getTotalEdges()).
-            setNumVertices(serviceWorker.getTotalVertices());
+        graphState.setSuperstep(serviceWorker.getSuperstep()).setContext(context).setGraphMapper(this)
+                  .setNumEdges(serviceWorker.getTotalEdges()).setNumVertices(serviceWorker.getTotalVertices());
 
         try {
             serviceWorker.getRepresentativeVertex().setGraphState(graphState);
@@ -606,10 +601,9 @@ public class GraphMapper<I extends WritableComparable, V extends Writable,
                     continue;
                 }
 
-                for (Vertex<I, V, E, M> vertex :
+                for (BasicVertex<I, V, E, M> vertex :
                         entry.getValue().getVertexMap().values()) {
-                    // Make sure every vertex has the current
-                    // graphState before computing
+                    // make sure every vertex has the current graphState before computing
                     vertex.setGraphState(graphState);
                     if (vertex.isHalted() &&
                             !vertex.getMsgList().isEmpty()) {
