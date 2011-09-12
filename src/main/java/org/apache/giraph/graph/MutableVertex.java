@@ -18,10 +18,10 @@
 
 package org.apache.giraph.graph;
 
-import java.io.IOException;
-
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+
+import java.io.IOException;
 
 /**
  * Interface used by VertexReader to set the properties of a new vertex
@@ -46,22 +46,23 @@ public abstract class MutableVertex<I extends WritableComparable,
      */
     public abstract boolean addEdge(Edge<I, E> edge);
 
-    /**
-     * Create a vertex for use in addVertexRequest().  Still need to get the
-     * vertex id and vertex value.
-     *
-     * @return Created vertex for addVertexRequest.
-     */
-    public abstract MutableVertex<I, V, E, M> instantiateVertex();
-
+    public MutableVertex<I, V, E, M> instantiateVertex() {
+        MutableVertex<I, V, E, M> mutableVertex =
+                BspUtils.createVertex(getContext().getConfiguration(), getGraphState());
+        return mutableVertex;
+    }
+    
     /**
      * Sends a request to create a vertex that will be available during the
      * next superstep.  Use instantiateVertex() to do the instantiation.
      *
      * @param vertex User created vertex
      */
-    public abstract void addVertexRequest(MutableVertex<I, V, E, M> vertex)
-        throws IOException;
+    public void addVertexRequest(MutableVertex<I, V, E, M> vertex)
+            throws IOException {
+        getGraphState().getGraphMapper().getWorkerCommunications().
+        addVertexReq(vertex);
+    }
 
     /**
      * Request to remove a vertex from the graph
@@ -69,7 +70,10 @@ public abstract class MutableVertex<I extends WritableComparable,
      *
      * @param vertexId Id of the vertex to be removed.
      */
-    public abstract void removeVertexRequest(I vertexId) throws IOException;
+    public void removeVertexRequest(I vertexId) throws IOException {
+        getGraphState().getGraphMapper().getWorkerCommunications().
+        removeVertexReq(vertexId);
+    }
 
     /**
      * Request to add an edge of a vertex in the graph
@@ -78,8 +82,11 @@ public abstract class MutableVertex<I extends WritableComparable,
      * @param sourceVertexId Source vertex id of edge
      * @param edge Edge to add
      */
-    public abstract void addEdgeRequest(I sourceVertexId, Edge<I, E> edge)
-        throws IOException;
+    public void addEdgeRequest(I sourceVertexId, Edge<I, E> edge)
+            throws IOException {
+        getGraphState().getGraphMapper().getWorkerCommunications().
+            addEdgeReq(sourceVertexId, edge);
+    }
 
     /**
      * Request to remove an edge of a vertex from the graph
@@ -88,6 +95,9 @@ public abstract class MutableVertex<I extends WritableComparable,
      * @param sourceVertexId Source vertex id of edge
      * @param destVertexId Destination vertex id of edge
      */
-    public abstract void removeEdgeRequest(I sourceVertexId, I destVertexId)
-        throws IOException;
+    public void removeEdgeRequest(I sourceVertexId, I destVertexId)
+            throws IOException {
+        getGraphState().getGraphMapper().getWorkerCommunications().
+            removeEdgeReq(sourceVertexId, destVertexId);
+    }
 }

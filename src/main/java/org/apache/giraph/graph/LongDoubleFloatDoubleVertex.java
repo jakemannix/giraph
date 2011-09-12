@@ -20,7 +20,6 @@ package org.apache.giraph.graph;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Writable;
 import org.apache.log4j.Logger;
 import org.apache.mahout.math.list.DoubleArrayList;
 import org.apache.mahout.math.list.FloatArrayList;
@@ -220,25 +219,6 @@ public abstract class LongDoubleFloatDoubleVertex extends
       out.writeDouble(msg);
     }
     out.writeBoolean(halt);
-  }
-
-  @Override
-  public final <A extends Writable> Aggregator<A> registerAggregator(
-      String name,
-      Class<? extends Aggregator<A>> aggregatorClass)
-      throws InstantiationException, IllegalAccessException {
-    return getGraphState().getGraphMapper().getAggregatorUsage().registerAggregator(
-        name, aggregatorClass);
-  }
-
-  @Override
-  public final Aggregator<? extends Writable> getAggregator(String name) {
-    return getGraphState().getGraphMapper().getAggregatorUsage().getAggregator(name);
-  }
-
-  @Override
-  public final boolean useAggregator(String name) {
-    return getGraphState().getGraphMapper().getAggregatorUsage().useAggregator(name);
   }
 
   @Override

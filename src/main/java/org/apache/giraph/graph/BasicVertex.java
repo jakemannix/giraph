@@ -1,4 +1,4 @@
-/*
+ /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -20,6 +20,7 @@ package org.apache.giraph.graph;
 
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -36,10 +37,8 @@ import java.util.SortedMap;
  */
 @SuppressWarnings("rawtypes")
 public abstract class BasicVertex<I extends WritableComparable,
-                             V extends Writable,
-                             E extends Writable,
-                             M extends Writable>
-                             implements AggregatorUsage {
+        V extends Writable, E extends Writable, M extends Writable>
+        implements AggregatorUsage {
     /** Global graph state **/
     private GraphState<I,V,E,M> graphState;
 
@@ -85,7 +84,9 @@ public abstract class BasicVertex<I extends WritableComparable,
      *
      * @return Current superstep
      */
-    public abstract long getSuperstep();
+    public long getSuperstep() {
+        return getGraphState().getSuperstep();
+    }
 
     /**
      * Get the vertex id
@@ -112,7 +113,9 @@ public abstract class BasicVertex<I extends WritableComparable,
      *
      * @return Total number of vertices (-1 if first superstep)
      */
-    public abstract long getNumVertices();
+    public long getNumVertices() {
+        return getGraphState().getNumVertices();
+    }
 
     /**
      * Get the total (all workers) number of edges that
@@ -120,7 +123,9 @@ public abstract class BasicVertex<I extends WritableComparable,
      *
      * @return Total number of edges (-1 if first superstep)
      */
-    public abstract long getNumEdges();
+    public long getNumEdges() {
+        return getGraphState().getNumEdges();
+    }
 
     /**
      * Every vertex has edges to other vertices.  Get a handle to the outward
@@ -136,7 +141,14 @@ public abstract class BasicVertex<I extends WritableComparable,
      * @param id vertex id to send the message to
      * @param msg message data to send
      */
-    public abstract void sendMsg(I id, M msg);
+    public void sendMsg(I id, M msg) {
+        if (msg == null) {
+            throw new IllegalArgumentException(
+                "sendMsg: Cannot send null message to " + id);
+        }
+        getGraphState().getGraphMapper().getWorkerCommunications().
+            sendMessageReq(id, msg);
+    }
 
     /**
      * Send a message to all edges.
@@ -178,5 +190,35 @@ public abstract class BasicVertex<I extends WritableComparable,
      */
     void setGraphState(GraphState<I, V, E, M> graphState) {
         this.graphState = graphState;
+    }
+
+    /**
+     * Get the mapper context
+     *
+     * @return Mapper context
+     */
+    public Mapper.Context getContext() {
+        return getGraphState().getContext();
+    }
+
+    @Override
+    public final <A extends Writable> Aggregator<A> registerAggregator(
+            String name,
+            Class<? extends Aggregator<A>> aggregatorClass)
+            throws InstantiationException, IllegalAccessException {
+        return getGraphState().getGraphMapper().getAggregatorUsage().
+            registerAggregator(name, aggregatorClass);
+    }
+
+    @Override
+    public final Aggregator<? extends Writable> getAggregator(String name) {
+        return getGraphState().getGraphMapper().getAggregatorUsage().
+            getAggregator(name);
+    }
+
+    @Override
+    public final boolean useAggregator(String name) {
+        return getGraphState().getGraphMapper().getAggregatorUsage().
+            useAggregator(name);
     }
 }

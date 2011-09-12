@@ -20,7 +20,6 @@ package org.apache.giraph.graph;
 
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.log4j.Logger;
 
 import java.io.DataInput;
@@ -120,28 +119,8 @@ public abstract class Vertex<I extends WritableComparable, V extends Writable,
     }
 
     @Override
-    public final long getNumVertices() {
-        return getGraphState().getNumVertices();
-    }
-
-    @Override
-    public final long getNumEdges() {
-        return getGraphState().getNumEdges();
-    }
-
-    @Override
     public final SortedMap<I, Edge<I, E>> getOutEdgeMap() {
         return destEdgeMap;
-    }
-
-    @Override
-    public final void sendMsg(I id, M msg) {
-        if (msg == null) {
-            throw new IllegalArgumentException(
-                "sendMsg: Cannot send null message to " + id);
-        }
-        getGraphState().getGraphMapper().getWorkerCommunications().
-            sendMessageReq(id, msg);
     }
 
     @Override
@@ -155,13 +134,6 @@ public abstract class Vertex<I extends WritableComparable, V extends Writable,
         }
     }
 
-    @Override
-    public MutableVertex<I, V, E, M> instantiateVertex() {
-        MutableVertex<I, V, E, M> mutableVertex =
-                (MutableVertex<I, V, E, M>) BspUtils.createVertex(getContext().getConfiguration(),
-                        getGraphState());
-        return mutableVertex;
-    }
 
     @Override
     public void addVertexRequest(MutableVertex<I, V, E, M> vertex)
@@ -247,33 +219,8 @@ public abstract class Vertex<I extends WritableComparable, V extends Writable,
     }
 
     @Override
-    public final <A extends Writable> Aggregator<A> registerAggregator(
-            String name,
-            Class<? extends Aggregator<A>> aggregatorClass)
-            throws InstantiationException, IllegalAccessException {
-        return getGraphState().getGraphMapper().getAggregatorUsage().
-            registerAggregator(name, aggregatorClass);
-    }
-
-    @Override
-    public final Aggregator<? extends Writable> getAggregator(String name) {
-        return getGraphState().getGraphMapper().getAggregatorUsage().
-            getAggregator(name);
-    }
-
-    @Override
-    public final boolean useAggregator(String name) {
-        return getGraphState().getGraphMapper().getAggregatorUsage().
-            useAggregator(name);
-    }
-
-    @Override
     public List<M> getMsgList() {
         return msgList;
-    }
-
-    public final Mapper.Context getContext() {
-        return getGraphState().getContext();
     }
 
     @Override

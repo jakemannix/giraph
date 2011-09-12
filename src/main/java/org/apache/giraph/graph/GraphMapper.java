@@ -66,7 +66,10 @@ public class GraphMapper<I extends WritableComparable, V extends Writable,
     private boolean done = false;
     /** What kind of functions is this mapper doing? */
     private MapFunctions mapFunctions = MapFunctions.UNKNOWN;
-
+    /**
+     * Graph state for all vertices that is used for the duration of
+     * this mapper.
+     */
     private GraphState<I,V,E,M> graphState = new GraphState<I, V, E, M>();
 
     /** What kinds of functions to run on this mapper */
@@ -601,9 +604,11 @@ public class GraphMapper<I extends WritableComparable, V extends Writable,
                     continue;
                 }
 
-                for (BasicVertex<I, V, E, M> vertex :
+                for (MutableVertex<I, V, E, M> vertex :
                         entry.getValue().getVertexMap().values()) {
-                    // make sure every vertex has the current graphState before computing
+                    // Make sure every vertex has the current
+                    // graphState before computing
+
                     vertex.setGraphState(graphState);
                     if (vertex.isHalted() &&
                             !vertex.getMsgList().isEmpty()) {
