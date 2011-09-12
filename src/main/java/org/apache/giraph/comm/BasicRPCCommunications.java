@@ -1002,7 +1002,7 @@ end[HADOOP_FACEBOOK]*/
                     conf, service.getGraphMapper().getGraphState());
             VertexRange<I, V, E, M> vertexRange =
                 service.getVertexRange(service.getSuperstep() - 1, vertexIndex);
-            Vertex<I, V, E, M> originalVertex =
+            BasicVertex<I, V, E, M> originalVertex =
                 vertexRange.getVertexMap().get(vertexIndex);
             List<M> msgList = inMessages.get(vertexIndex);
             if (originalVertex != null) {
