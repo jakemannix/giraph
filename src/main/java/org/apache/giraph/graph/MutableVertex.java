@@ -52,7 +52,7 @@ public abstract class MutableVertex<I extends WritableComparable,
      * @param targetVertexId the target vertex id of the edge to be removed.
      * @return the value of the edge which was removed (or null if no edge existed to targetVertexId)
      */
-    public abstract E removeEdge(I targetVertexId);
+    public abstract Edge<I, E> removeEdge(I targetVertexId);
 
     /**
      * Create a vertex for use in addVertexRequest().  Still need to get the

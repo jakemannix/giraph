@@ -138,8 +138,12 @@ public abstract class BasicVertex<I extends WritableComparable,
      * @param targetVertexId
      * @return the value of the edge to targetVertexId (or null if there is no edge to it)
      */
-    public abstract E getEdgeValue(I targetVertexId);
+    public abstract Edge<I, E> getEdge(I targetVertexId);
 
+    /**
+     *
+     * @return the total number of outbound edges from this vertex
+     */
     public abstract int getNumOutEdges();
 
     /**

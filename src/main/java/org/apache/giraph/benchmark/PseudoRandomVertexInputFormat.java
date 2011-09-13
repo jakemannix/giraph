@@ -152,7 +152,7 @@ public class PseudoRandomVertexInputFormat extends
                     destVertexId =
                         new LongWritable(Math.abs(rand.nextLong()) %
                                          aggregateVertices);
-                } while (vertex.getEdgeValue(destVertexId) != null);
+                } while (vertex.getEdge(destVertexId) != null);
                 Edge<LongWritable, DoubleWritable> edge =
                     new Edge<LongWritable, DoubleWritable>(
                         destVertexId, new DoubleWritable(rand.nextDouble()));
