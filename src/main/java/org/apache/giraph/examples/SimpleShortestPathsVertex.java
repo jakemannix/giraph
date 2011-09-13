@@ -18,9 +18,11 @@
 
 package org.apache.giraph.examples;
 
-import java.io.IOException;
-import java.util.Iterator;
-
+import org.apache.giraph.graph.*;
+import org.apache.giraph.lib.TextVertexInputFormat;
+import org.apache.giraph.lib.TextVertexInputFormat.TextVertexReader;
+import org.apache.giraph.lib.TextVertexOutputFormat;
+import org.apache.giraph.lib.TextVertexOutputFormat.TextVertexWriter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
@@ -36,20 +38,11 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
-
-import org.apache.giraph.graph.BasicVertex;
-import org.apache.giraph.graph.Edge;
-import org.apache.giraph.graph.GiraphJob;
-import org.apache.giraph.graph.MutableVertex;
-import org.apache.giraph.graph.Vertex;
-import org.apache.giraph.graph.VertexReader;
-import org.apache.giraph.graph.VertexWriter;
-import org.apache.giraph.lib.TextVertexInputFormat;
-import org.apache.giraph.lib.TextVertexInputFormat.TextVertexReader;
-import org.apache.giraph.lib.TextVertexOutputFormat;
-import org.apache.giraph.lib.TextVertexOutputFormat.TextVertexWriter;
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * Demonstrates the basic Pregel shortest paths implementation.
@@ -93,8 +86,7 @@ public class SimpleShortestPathsVertex extends
         }
         if (minDist < getVertexValue().get()) {
             setVertexValue(new DoubleWritable(minDist));
-            for (Edge<LongWritable, FloatWritable> edge :
-                    getOutEdgeMap().values()) {
+            for (Edge<LongWritable, FloatWritable> edge : this) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Vertex " + getVertexId() + " sent to " +
                               edge.getDestVertexId() + " = " +
@@ -210,8 +202,7 @@ public class SimpleShortestPathsVertex extends
                 jsonVertex.put(vertex.getVertexId().get());
                 jsonVertex.put(vertex.getVertexValue().get());
                 JSONArray jsonEdgeArray = new JSONArray();
-                for (Edge<LongWritable, FloatWritable> edge :
-                        vertex.getOutEdgeMap().values()) {
+                for (Edge<LongWritable, FloatWritable> edge : vertex) {
                     JSONArray jsonEdge = new JSONArray();
                     jsonEdge.put(edge.getDestVertexId().get());
                     jsonEdge.put(edge.getEdgeValue().get());

@@ -62,7 +62,7 @@ public class VertexResolver<I extends WritableComparable, V extends Writable,
             if (vertexChanges != null) {
                 List<I> removedEdgeList = vertexChanges.getRemovedEdgeList();
                 for (I removedDestVertex : removedEdgeList) {
-                    if (vertex.getOutEdgeMap().remove(removedDestVertex) ==
+                    if (((MutableVertex)vertex).removeEdge(removedDestVertex) ==
                             null) {
                         LOG.warn("resolve: Failed to remove edge with " +
                                  "destination " + removedDestVertex + "on " +

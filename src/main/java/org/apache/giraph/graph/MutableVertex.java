@@ -18,10 +18,10 @@
 
 package org.apache.giraph.graph;
 
-import java.io.IOException;
-
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+
+import java.io.IOException;
 
 /**
  * Interface used by VertexReader to set the properties of a new vertex
@@ -45,6 +45,14 @@ public abstract class MutableVertex<I extends WritableComparable,
      * @return Return true if succeeded, false otherwise
      */
     public abstract boolean addEdge(Edge<I, E> edge);
+
+    /**
+     * Removes an edge for this vertex (happens immediately).
+     *
+     * @param targetVertexId the target vertex id of the edge to be removed.
+     * @return the value of the edge which was removed (or null if no edge existed to targetVertexId)
+     */
+    public abstract E removeEdge(I targetVertexId);
 
     /**
      * Create a vertex for use in addVertexRequest().  Still need to get the

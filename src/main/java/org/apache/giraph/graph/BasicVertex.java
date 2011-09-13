@@ -25,7 +25,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SortedMap;
 
 /**
  * Basic interface for writing a BSP application for computation.
@@ -38,7 +37,7 @@ import java.util.SortedMap;
 @SuppressWarnings("rawtypes")
 public abstract class BasicVertex<I extends WritableComparable,
         V extends Writable, E extends Writable, M extends Writable>
-        implements AggregatorUsage {
+        implements AggregatorUsage, Iterable<Edge<I,E>> {
     /** Global graph state **/
     private GraphState<I,V,E,M> graphState;
 
@@ -128,12 +127,20 @@ public abstract class BasicVertex<I extends WritableComparable,
     }
 
     /**
-     * Every vertex has edges to other vertices.  Get a handle to the outward
-     * edge set.
-     *
-     * @return Map of the destination vertex index to the {@link Edge}
+     * Get a read-only, sorted view of the out-edges of this vertex.
+     * @return the out edges, sorted by vertexId.
      */
-    public abstract SortedMap<I, Edge<I, E>> getOutEdgeMap();
+    @Override
+    public abstract Iterator<Edge<I, E>> iterator();
+
+    /**
+     *
+     * @param targetVertexId
+     * @return the value of the edge to targetVertexId (or null if there is no edge to it)
+     */
+    public abstract E getEdgeValue(I targetVertexId);
+
+    public abstract int getNumOutEdges();
 
     /**
      * Send a message to a vertex id.

@@ -25,10 +25,7 @@ import org.apache.log4j.Logger;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * User applications should all subclass {@link Vertex}.  Package access
@@ -114,8 +111,25 @@ public abstract class Vertex<I extends WritableComparable, V extends Writable,
     }
 
     @Override
-    public final SortedMap<I, Edge<I, E>> getOutEdgeMap() {
-        return destEdgeMap;
+    public E getEdgeValue(I targetVertexId) {
+        Edge<I, E> edge = destEdgeMap.get(targetVertexId);
+        return edge != null ? edge.getEdgeValue() : null;
+    }
+
+    @Override
+    public Iterator<Edge<I, E>> iterator() {
+        return destEdgeMap.values().iterator();
+    }
+
+    @Override
+    public int getNumOutEdges() {
+        return destEdgeMap.size();
+    }
+
+    @Override
+    public E removeEdge(I targetVertexId) {
+        Edge<I, E> edge = destEdgeMap.remove(targetVertexId);
+        return edge != null ? edge.getEdgeValue() : null;
     }
 
     @Override
@@ -193,7 +207,7 @@ public abstract class Vertex<I extends WritableComparable, V extends Writable,
     @Override
     public String toString() {
         return "Vertex(id=" + getVertexId() + ",value=" + getVertexValue() +
-            ",#edges=" + getOutEdgeMap().size() + ")";
+            ",#edges=" + destEdgeMap.size() + ")";
     }
 }
 
