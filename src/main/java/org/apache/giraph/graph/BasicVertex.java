@@ -138,7 +138,14 @@ public abstract class BasicVertex<I extends WritableComparable,
      * @param targetVertexId
      * @return the value of the edge to targetVertexId (or null if there is no edge to it)
      */
-    public abstract Edge<I, E> getEdge(I targetVertexId);
+    public abstract E getEdgeValue(I targetVertexId);
+
+    /**
+     *
+     * @param targetVertexId
+     * @return true if there is an edge to the target
+     */
+    public abstract boolean hasEdge(I targetVertexId);
 
     /**
      *

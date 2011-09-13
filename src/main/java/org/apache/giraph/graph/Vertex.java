@@ -111,8 +111,14 @@ public abstract class Vertex<I extends WritableComparable, V extends Writable,
     }
 
     @Override
-    public Edge<I, E> getEdge(I targetVertexId) {
-        return destEdgeMap.get(targetVertexId);
+    public E getEdgeValue(I targetVertexId) {
+        Edge<I, E> edge = destEdgeMap.get(targetVertexId);
+        return edge != null ? edge.getEdgeValue() : null;
+    }
+
+    @Override
+    public boolean hasEdge(I targetVertexId) {
+        return destEdgeMap.containsKey(targetVertexId);
     }
 
     @Override
