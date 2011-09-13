@@ -76,13 +76,12 @@ public abstract class Vertex<I extends WritableComparable, V extends Writable,
     }
 
     @Override
-    public final boolean addEdge(Edge<I, E> edge) {
-        edge.setConf(getContext().getConfiguration());
-        if (destEdgeMap.put(edge.getDestVertexId(), edge) != null) {
+    public final boolean addEdge(I targetVertexId, E edgeValue) {
+        if (destEdgeMap.put(targetVertexId, new Edge<I, E>(targetVertexId, edgeValue)) != null) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("addEdge: Vertex=" + vertexId +
                           ": already added an edge value for dest vertex id " +
-                          edge.getDestVertexId());
+                          targetVertexId);
             }
             return false;
         } else {
@@ -122,8 +121,8 @@ public abstract class Vertex<I extends WritableComparable, V extends Writable,
     }
 
     @Override
-    public Iterator<Edge<I, E>> iterator() {
-        return destEdgeMap.values().iterator();
+    public Iterator<I> iterator() {
+        return destEdgeMap.keySet().iterator();
     }
 
     @Override
@@ -132,8 +131,13 @@ public abstract class Vertex<I extends WritableComparable, V extends Writable,
     }
 
     @Override
-    public Edge<I, E> removeEdge(I targetVertexId) {
-        return destEdgeMap.remove(targetVertexId);
+    public E removeEdge(I targetVertexId) {
+        Edge<I, E> edge = destEdgeMap.remove(targetVertexId);
+        if(edge != null) {
+            return edge.getEdgeValue();
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -173,7 +177,7 @@ public abstract class Vertex<I extends WritableComparable, V extends Writable,
             Edge<I, E> edge = new Edge<I, E>();
             edge.setConf(getContext().getConfiguration());
             edge.readFields(in);
-            addEdge(edge);
+            addEdge(edge.getDestVertexId(), edge.getEdgeValue());
         }
         long msgListSize = in.readLong();
         for (long i = 0; i < msgListSize; ++i) {

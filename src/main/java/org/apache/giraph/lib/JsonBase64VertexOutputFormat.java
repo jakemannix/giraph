@@ -98,7 +98,9 @@ public class JsonBase64VertexOutputFormat<
                     "writerVertex: Failed to insert vertex value", e);
             }
             JSONArray edgeArray = new JSONArray();
-            for (Edge<I, E> edge : vertex) {
+            for (I targetVertexId : vertex) {
+                Edge<I, E> edge = new Edge<I, E>(targetVertexId, vertex.getEdgeValue(targetVertexId));
+                edge.setConf(getContext().getConfiguration());
                 outputStream.reset();
                 edge.write(output);
                 edgeArray.put(Base64.encodeBytes(outputStream.toByteArray()));

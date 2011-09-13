@@ -19,7 +19,6 @@
 package org.apache.giraph.benchmark;
 
 import org.apache.giraph.bsp.BspInputSplit;
-import org.apache.giraph.graph.Edge;
 import org.apache.giraph.graph.MutableVertex;
 import org.apache.giraph.graph.VertexInputFormat;
 import org.apache.giraph.graph.VertexReader;
@@ -153,10 +152,7 @@ public class PseudoRandomVertexInputFormat extends
                         new LongWritable(Math.abs(rand.nextLong()) %
                                          aggregateVertices);
                 } while (vertex.hasEdge(destVertexId));
-                Edge<LongWritable, DoubleWritable> edge =
-                    new Edge<LongWritable, DoubleWritable>(
-                        destVertexId, new DoubleWritable(rand.nextDouble()));
-                vertex.addEdge(edge);
+                vertex.addEdge(destVertexId, new DoubleWritable(rand.nextDouble()));
             }
 
             ++verticesRead;

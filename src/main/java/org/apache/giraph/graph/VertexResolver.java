@@ -101,7 +101,7 @@ public class VertexResolver<I extends WritableComparable, V extends Writable,
                 (MutableVertex<I, V, E, M>) vertex;
             for (Edge<I, E> edge : vertexChanges.getAddedEdgeList()) {
                 edge.setConf(getConf());
-                mutableVertex.addEdge(edge);
+                mutableVertex.addEdge(edge.getDestVertexId(), edge.getEdgeValue());
             }
         }
 

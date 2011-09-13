@@ -41,10 +41,11 @@ public abstract class MutableVertex<I extends WritableComparable,
     /**
      * Add an edge for this vertex (happens immediately)
      *
-     * @param edge Edge to be added
+     * @param targetVertexId target vertex
+     * @param edgeValue value of the edge
      * @return Return true if succeeded, false otherwise
      */
-    public abstract boolean addEdge(Edge<I, E> edge);
+    public abstract boolean addEdge(I targetVertexId, E edgeValue);
 
     /**
      * Removes an edge for this vertex (happens immediately).
@@ -52,7 +53,7 @@ public abstract class MutableVertex<I extends WritableComparable,
      * @param targetVertexId the target vertex id of the edge to be removed.
      * @return the value of the edge which was removed (or null if no edge existed to targetVertexId)
      */
-    public abstract Edge<I, E> removeEdge(I targetVertexId);
+    public abstract E removeEdge(I targetVertexId);
 
     /**
      * Create a vertex for use in addVertexRequest().  Still need to get the

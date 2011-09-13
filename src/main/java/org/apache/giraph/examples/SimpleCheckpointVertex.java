@@ -119,17 +119,17 @@ public class SimpleCheckpointVertex extends
         System.out.println("compute: vertex " + getVertexId() +
                            " has value " + getVertexValue() +
                            " on superstep " + getSuperstep());
-        for (Edge<LongWritable, FloatWritable> edge : this) {
-            float edgeValue = edge.getEdgeValue().get();
+        for (LongWritable targetVertexId : this) {
+            FloatWritable edgeValue = getEdgeValue(targetVertexId);
             System.out.println("compute: vertex " + getVertexId() +
                                " sending edgeValue " + edgeValue +
                                " vertexValue " + vertexValue +
-                               " total " + (edgeValue + (float) vertexValue) +
-                               " to vertex " + edge.getDestVertexId() +
+                               " total " + (edgeValue.get() + (float) vertexValue) +
+                               " to vertex " + targetVertexId +
                                " on superstep " + getSuperstep());
-            edge.getEdgeValue().set(edgeValue + (float) vertexValue);
-            sendMsg(edge.getDestVertexId(),
-                    new FloatWritable(edgeValue));
+            edgeValue.set(edgeValue.get() + (float) vertexValue);
+            addEdge(targetVertexId, edgeValue);
+            sendMsg(targetVertexId, edgeValue);
         }
     }
 

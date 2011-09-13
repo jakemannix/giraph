@@ -86,15 +86,15 @@ public class SimpleShortestPathsVertex extends
         }
         if (minDist < getVertexValue().get()) {
             setVertexValue(new DoubleWritable(minDist));
-            for (Edge<LongWritable, FloatWritable> edge : this) {
+            for (LongWritable targetVertexId : this) {
+                FloatWritable edgeValue = getEdgeValue(targetVertexId);
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Vertex " + getVertexId() + " sent to " +
-                              edge.getDestVertexId() + " = " +
-                              (minDist + edge.getEdgeValue().get()));
+                              targetVertexId + " = " +
+                              (minDist + edgeValue.get()));
                 }
-                sendMsg(edge.getDestVertexId(),
-                        new DoubleWritable(minDist +
-                                           edge.getEdgeValue().get()));
+                sendMsg(targetVertexId,
+                        new DoubleWritable(minDist + edgeValue.get()));
             }
         }
         voteToHalt();
@@ -152,11 +152,8 @@ public class SimpleShortestPathsVertex extends
                 JSONArray jsonEdgeArray = jsonVertex.getJSONArray(2);
                 for (int i = 0; i < jsonEdgeArray.length(); ++i) {
                     JSONArray jsonEdge = jsonEdgeArray.getJSONArray(i);
-                    Edge<LongWritable, FloatWritable> edge =
-                        new Edge<LongWritable, FloatWritable>(
-                            new LongWritable(jsonEdge.getLong(0)),
+                    vertex.addEdge(new LongWritable(jsonEdge.getLong(0)),
                             new FloatWritable((float) jsonEdge.getDouble(1)));
-                    vertex.addEdge(edge);
                 }
             } catch (JSONException e) {
                 throw new IllegalArgumentException(
@@ -202,10 +199,10 @@ public class SimpleShortestPathsVertex extends
                 jsonVertex.put(vertex.getVertexId().get());
                 jsonVertex.put(vertex.getVertexValue().get());
                 JSONArray jsonEdgeArray = new JSONArray();
-                for (Edge<LongWritable, FloatWritable> edge : vertex) {
+                for (LongWritable targetVertexId : vertex) {
                     JSONArray jsonEdge = new JSONArray();
-                    jsonEdge.put(edge.getDestVertexId().get());
-                    jsonEdge.put(edge.getEdgeValue().get());
+                    jsonEdge.put(targetVertexId.get());
+                    jsonEdge.put(vertex.getEdgeValue(targetVertexId).get());
                     jsonEdgeArray.put(jsonEdge);
                 }
                 jsonVertex.put(jsonEdgeArray);

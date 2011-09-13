@@ -147,9 +147,8 @@ public class SimplePageRankVertex extends
                 (inputSplit.getNumSplits() * totalRecords);
             float edgeValue = vertex.getVertexId().get() * 100f;
             // Adds an edge to the neighbor vertex
-            vertex.addEdge(new Edge<LongWritable, FloatWritable>(
-                    new LongWritable(destVertexId),
-                    new FloatWritable(edgeValue)));
+            vertex.addEdge(new LongWritable(destVertexId),
+                    new FloatWritable(edgeValue));
             ++recordsRead;
             LOG.info("next: Return vertexId=" + vertex.getVertexId().get() +
                 ", vertexValue=" + vertex.getVertexValue() +

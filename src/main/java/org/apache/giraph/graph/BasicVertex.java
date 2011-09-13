@@ -37,7 +37,7 @@ import java.util.List;
 @SuppressWarnings("rawtypes")
 public abstract class BasicVertex<I extends WritableComparable,
         V extends Writable, E extends Writable, M extends Writable>
-        implements AggregatorUsage, Iterable<Edge<I,E>> {
+        implements AggregatorUsage, Iterable<I> {
     /** Global graph state **/
     private GraphState<I,V,E,M> graphState;
 
@@ -131,7 +131,17 @@ public abstract class BasicVertex<I extends WritableComparable,
      * @return the out edges, sorted by vertexId.
      */
     @Override
-    public abstract Iterator<Edge<I, E>> iterator();
+    public abstract Iterator<I> iterator();
+
+    /**
+     * Subclasses may choose to provide an unsorted iterator (for performance reasons), and cases where the
+     * sorted nature of this iterator come into play should check this method first, and act appropriately
+     * (ie by either giving up and throwing an exception, or sorting on the fly, or doing something else)
+     * @return true
+     */
+    public boolean providesSortedIterator() {
+        return true;
+    }
 
     /**
      *
