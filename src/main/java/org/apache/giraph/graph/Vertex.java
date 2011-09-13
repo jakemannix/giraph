@@ -28,8 +28,11 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * User applications should all subclass {@link Vertex}.  Package access
- * should prevent users from accessing internal methods.
+ * User applications often subclass {@link Vertex}, which stores the outbound edges in SortedMap,
+ * for both random-access and range operations.  User applications which need to implement their own
+ * in-memory data structures should subclass {@link MutableVertex}.
+ *
+ * Package access will prevent users from accessing internal methods.
  *
  * @param <I> Vertex index value
  * @param <V> Vertex value
@@ -47,7 +50,7 @@ public abstract class Vertex<I extends WritableComparable, V extends Writable,
     /** Vertex value */
     private V vertexValue = null;
     /** Map of destination vertices and their edge values */
-    private final SortedMap<I, Edge<I, E>> destEdgeMap =
+    protected final SortedMap<I, Edge<I, E>> destEdgeMap =
         new TreeMap<I, Edge<I, E>>();
     /** If true, do not do anymore computation on this vertex. */
     boolean halt = false;
@@ -120,6 +123,10 @@ public abstract class Vertex<I extends WritableComparable, V extends Writable,
         return destEdgeMap.containsKey(targetVertexId);
     }
 
+    /**
+     *
+     * @return a <em>sorted</em> iterator, as defined by the sort-order of the vertex ids
+     */
     @Override
     public Iterator<I> iterator() {
         return destEdgeMap.keySet().iterator();

@@ -127,21 +127,11 @@ public abstract class BasicVertex<I extends WritableComparable,
     }
 
     /**
-     * Get a read-only, sorted view of the out-edges of this vertex.
-     * @return the out edges, sorted by vertexId.
+     * Get a read-only view of the out-edges of this vertex.
+     * @return the out edges (sort order determined by subclass implementation).
      */
     @Override
     public abstract Iterator<I> iterator();
-
-    /**
-     * Subclasses may choose to provide an unsorted iterator (for performance reasons), and cases where the
-     * sorted nature of this iterator come into play should check this method first, and act appropriately
-     * (ie by either giving up and throwing an exception, or sorting on the fly, or doing something else)
-     * @return true
-     */
-    public boolean providesSortedIterator() {
-        return true;
-    }
 
     /**
      *
