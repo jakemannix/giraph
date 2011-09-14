@@ -297,7 +297,7 @@ public class VertexRange<I extends WritableComparable,
     public long getEdgeCount() {
         long edgeCount = 0;
         for (BasicVertex<I, V, E, M> vertex : vertexMap.values()) {
-            edgeCount += vertex.getOutEdgeMap().size();
+            edgeCount += vertex.getNumOutEdges();
         }
         return edgeCount;
     }

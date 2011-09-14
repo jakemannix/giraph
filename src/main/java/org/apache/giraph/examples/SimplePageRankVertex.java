@@ -19,7 +19,6 @@
 package org.apache.giraph.examples;
 
 import org.apache.giraph.graph.BasicVertex;
-import org.apache.giraph.graph.Edge;
 import org.apache.giraph.graph.LongDoubleFloatDoubleVertex;
 import org.apache.giraph.graph.MutableVertex;
 import org.apache.giraph.graph.VertexReader;
@@ -120,7 +119,7 @@ public class SimplePageRankVertex extends LongDoubleFloatDoubleVertex {
         }
 
         if (getSuperstep() < 30) {
-            long edges = getOutEdgeMap().size();
+            long edges = getNumOutEdges();
             sendMsgToAllEdges(
                 new DoubleWritable(getVertexValue().get() / edges));
         } else {
@@ -151,9 +150,8 @@ public class SimplePageRankVertex extends LongDoubleFloatDoubleVertex {
                 (inputSplit.getNumSplits() * totalRecords);
             float edgeValue = vertex.getVertexId().get() * 100f;
             // Adds an edge to the neighbor vertex
-            vertex.addEdge(new Edge<LongWritable, FloatWritable>(
-                    new LongWritable(destVertexId),
-                    new FloatWritable(edgeValue)));
+            vertex.addEdge(new LongWritable(destVertexId),
+                    new FloatWritable(edgeValue));
             ++recordsRead;
             LOG.info("next: Return vertexId=" + vertex.getVertexId().get() +
                 ", vertexValue=" + vertex.getVertexValue() +

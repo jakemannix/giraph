@@ -626,7 +626,7 @@ public class GraphMapper<I extends WritableComparable, V extends Writable,
                         ++workerFinishedVertices;
                     }
                     ++workerVertices;
-                    workerEdges += vertex.getOutEdgeMap().size();
+                    workerEdges += vertex.getNumOutEdges();
                 }
             }
 
