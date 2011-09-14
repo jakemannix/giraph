@@ -18,34 +18,33 @@
 package org.apache.giraph;
 
  import junit.framework.TestCase;
- import org.apache.giraph.benchmark.PageRankBenchmark;
- import org.apache.giraph.benchmark.ScaleInvariantPseudoRandomEdgeGenerator;
- import org.apache.giraph.graph.BspUtils;
- import org.apache.giraph.graph.GiraphJob;
- import org.apache.giraph.graph.GraphMapper;
- import org.apache.giraph.graph.GraphState;
- import org.apache.giraph.graph.MutableVertex;
- import org.apache.giraph.graph.Vertex;
- import org.apache.hadoop.conf.Configuration;
- import org.apache.hadoop.io.DoubleWritable;
- import org.apache.hadoop.io.LongWritable;
- import org.apache.hadoop.io.Writable;
- import org.apache.hadoop.mapreduce.Mapper;
- import org.mockito.Mockito;
+import org.apache.giraph.benchmark.PageRankBenchmark;
+import org.apache.giraph.benchmark.ScaleInvariantPseudoRandomEdgeGenerator;
+import org.apache.giraph.graph.BspUtils;
+import org.apache.giraph.graph.GiraphJob;
+import org.apache.giraph.graph.GraphState;
+import org.apache.giraph.graph.MutableVertex;
+import org.apache.giraph.graph.Vertex;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.mockito.Mockito;
 
- import java.io.IOException;
- import java.util.ArrayList;
- import java.util.List;
- import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class TestScaleInvariantPseudoRandomEdgeGenerator extends TestCase {
 
+    private int[][] seed;
     private ScaleInvariantPseudoRandomEdgeGenerator generator;
 
     @Override
     public void setUp() {
-        int[][] seed = new int[][] {{0,1,2}, {0,1,5}, {1,3,5}, {0,4,6,7}, {1,2}, {5,6,7}, {0, 3, 5}, {6}};
-        generator = new ScaleInvariantPseudoRandomEdgeGenerator(seed, 4, seed.length, new Random(1234), 0.1f);
+        seed = new int[][] {{0,2}, {0,1}, {1}, {}, {}, {5}, {0,5}, {6}};
+        generator = new ScaleInvariantPseudoRandomEdgeGenerator(seed, 8, seed.length, new Random(1234), 0.1f);
     }
 
     public void testBuildGraph() throws Exception {
@@ -66,12 +65,16 @@ public class TestScaleInvariantPseudoRandomEdgeGenerator extends TestCase {
             generator.addEdges(vertex);
             vertexes.add(vertex);
         }
-        int[] logHistogram = new int[32];
+        double[] logHistogram = new double[32];
         for(MutableVertex<LongWritable, DoubleWritable, DoubleWritable, ?> vertex : vertexes) {
-            int logNumEdges = (int) Math.log(vertex.getOutEdgeMap().size()+1);
+            int n = vertex.getOutEdgeMap().size() + 1;
+            int logNumEdges = (int) (Math.log(n) / Math.log(2));
             logHistogram[logNumEdges]++;
         }
-        for(int h : logHistogram) {
+        for(int i=0; i<logHistogram.length; i++) {
+            logHistogram[i] = Math.log(logHistogram[i] + 1) / Math.log(2);
+        }
+        for(double h : logHistogram) {
             StringBuffer buffer = new StringBuffer();
             while(h>0) {
                 buffer.append("*");
@@ -81,10 +84,15 @@ public class TestScaleInvariantPseudoRandomEdgeGenerator extends TestCase {
         }
     }
 
-    private static class ContextWrapper
-            extends GraphMapper<LongWritable, DoubleWritable, DoubleWritable, Writable> {
-        public Context getContext(Configuration configuration) throws IOException, InterruptedException {
-            return new Context(configuration, null, null, null, null, null, null);
+    public void testDigitifier() throws Exception {
+        int base = 10;
+        int originalNumber = 12345;
+        generator = new ScaleInvariantPseudoRandomEdgeGenerator(seed, seed.length, base, new Random(1234), 0f);
+        int[] digits = generator.digits(originalNumber);
+        int sum = 0;
+        for(int i=0; i<digits.length; i++) {
+            sum += digits[i] * Math.pow(base, i);
         }
+        assertEquals("Digitifier not working!", sum, originalNumber);
     }
 }

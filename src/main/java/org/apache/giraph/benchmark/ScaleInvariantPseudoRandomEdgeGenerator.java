@@ -53,7 +53,7 @@ public class ScaleInvariantPseudoRandomEdgeGenerator {
             }
         }
         bases = new long[numSeeds];
-        bases[0] = 0;
+        bases[0] = 1;
         for(int pow=1; pow<numSeeds; pow++) {
             bases[pow] = (long)Math.pow(seedSize, pow);
         }
@@ -64,6 +64,10 @@ public class ScaleInvariantPseudoRandomEdgeGenerator {
         int[] digits = digits(vertex.getVertexId().get());
         for(int seed=0; seed<numSeeds; seed++) {
             nonZeroes[seed] = seedAdjacencyMatrices[seed][digits[seed]];
+            if(nonZeroes.length == 0) {
+                // if any row has no entries, there will be no edges for this vertex.
+                return;
+            }
         }
         addAllCombinations(nonZeroes, 0, numSeeds-1, bases, vertex);
     }
@@ -85,8 +89,8 @@ public class ScaleInvariantPseudoRandomEdgeGenerator {
 
     public int[] digits(long input) {
         int[] digits = new int[numSeeds];
-        for(int pow = 1; pow < numSeeds; pow++) {
-            digits[pow] = (int) (input % bases[pow]);
+        for(int pow = 0; pow < numSeeds; pow++) {
+            digits[pow] = (int) (input / bases[pow]) % seedSize;
         }
         return digits;
     }
