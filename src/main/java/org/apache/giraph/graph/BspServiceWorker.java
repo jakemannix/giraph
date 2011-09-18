@@ -313,7 +313,7 @@ public class BspServiceWorker<
                InstantiationException, IllegalAccessException {
         InputSplit inputSplit = getInputSplitForVertices(inputSplitPath);
 
-        List<MutableVertex<I, V, E, M>> vertexList =
+        List<BasicVertex<I, V, E, M>> vertexList =
             readVerticesFromInputSplit(inputSplit);
 
         if (LOG.isInfoEnabled()) {
@@ -381,17 +381,17 @@ public class BspServiceWorker<
      * @throws IOException
      * @throws InterruptedException
      */
-    private List<MutableVertex<I, V, E, M>> readVerticesFromInputSplit(
+    private List<BasicVertex<I, V, E, M>> readVerticesFromInputSplit(
             InputSplit inputSplit) throws IOException, InterruptedException {
-        List<MutableVertex<I, V, E, M>> vertexList =
-            new ArrayList<MutableVertex<I, V, E, M>>();
+        List<BasicVertex<I, V, E, M>> vertexList =
+            new ArrayList<BasicVertex<I, V, E, M>>();
         VertexInputFormat<I, V, E> vertexInputFormat =
             BspUtils.<I, V, E>createVertexInputFormat(getConfiguration());
         VertexReader<I, V, E> vertexReader =
             vertexInputFormat.createVertexReader(inputSplit, getContext());
         vertexReader.initialize(inputSplit, getContext());
-        MutableVertex<I, V, E, M> readerVertex =
-                (MutableVertex<I, V, E, M>) BspUtils.<I, V, E, M>createVertex(
+        BasicVertex<I, V, E, M> readerVertex =
+                BspUtils.<I, V, E, M>createVertex(
                         getConfiguration(), getGraphMapper().getGraphState());
         while (vertexReader.next(readerVertex)) {
             if (readerVertex.getVertexId() == null) {
@@ -418,7 +418,7 @@ public class BspServiceWorker<
                 }
             }
             vertexList.add(readerVertex);
-            readerVertex = (MutableVertex<I, V, E, M>) BspUtils.createVertex(getConfiguration(),
+            readerVertex = BspUtils.createVertex(getConfiguration(),
                 getGraphMapper().getGraphState());
             getContext().progress();
         }
@@ -440,7 +440,7 @@ public class BspServiceWorker<
      * @throws IOException
      */
     private NavigableMap<I, VertexRange<I, V, E, M>> getVertexRanges(
-        InputSplit inputSplit, List<MutableVertex<I, V, E, M>> vertexList)
+        InputSplit inputSplit, List<BasicVertex<I, V, E, M>> vertexList)
         throws InstantiationException, IllegalAccessException, IOException {
 
         NavigableMap<I, VertexRange<I, V, E, M>> vertexRangeMap =
@@ -488,7 +488,7 @@ public class BspServiceWorker<
         // Now iterate over the defined ranges, placing each vertex in its range
         Iterator<I> maxIndexVertexMapIt = vertexRangeMap.keySet().iterator();
         I currentVertexIndexMax = maxIndexVertexMapIt.next();
-        for (MutableVertex<I, V, E, M> vertex : vertexList) {
+        for (BasicVertex<I, V, E, M> vertex : vertexList) {
             @SuppressWarnings("unchecked")
             int compareTo = vertex.getVertexId().compareTo(currentVertexIndexMax);
             if (compareTo > 0) {
@@ -507,7 +507,7 @@ public class BspServiceWorker<
             }
             VertexRange<I, V, E, M> range =
                 vertexRangeMap.get(currentVertexIndexMax);
-            SortedMap<I, MutableVertex<I, V, E, M>> vertexMap = range.getVertexMap();
+            SortedMap<I, BasicVertex<I, V, E, M>> vertexMap = range.getVertexMap();
             if (vertexMap.put(vertex.getVertexId(), vertex) != null) {
                 throw new IllegalStateException(
                     "loadVertices: Already contains vertex " +
@@ -1103,7 +1103,7 @@ public class BspServiceWorker<
                     new ByteArrayOutputStream();
                 DataOutput vertexOutput =
                     new DataOutputStream(vertexByteStream);
-                ((MutableVertex<I, V, E, M>) vertex).write(vertexOutput);
+                vertex.write(vertexOutput);
                 verticesOutputStream.write(vertexByteStream.toByteArray());
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("storeCheckpoint: Wrote vertex id = " +
@@ -1174,8 +1174,7 @@ public class BspServiceWorker<
         long vertexCount = dataStream.readLong();
         VertexRange<I, V, E, M> vertexRange = getVertexRangeMap().get(maxIndex);
         for (int i = 0; i < vertexCount; ++i) {
-            MutableVertex<I, V, E, M> vertex =
-                    (MutableVertex<I, V, E, M>) BspUtils.<I, V, E, M>createVertex(
+            BasicVertex<I, V, E, M> vertex = BspUtils.<I, V, E, M>createVertex(
                             getConfiguration(),
                             getGraphMapper().getGraphState());
             vertex.readFields(dataStream);
@@ -1203,8 +1202,8 @@ public class BspServiceWorker<
         long vertexRangeCount = -1;
         for (VertexRange<I, V, E, M> vertexRange :
                 getVertexRangeMap().values()) {
-            if (vertexRange.getHostnameId().compareTo(
-                    getHostnamePartitionId()) == 0) {
+            if (vertexRange.getHostnameId()
+                    .compareTo(getHostnamePartitionId()) == 0) {
                 String metadataFile =
                     vertexRange.getCheckpointFilePrefix() +
                     CHECKPOINT_METADATA_POSTFIX;
@@ -1353,16 +1352,16 @@ public class BspServiceWorker<
         }
 
         // Add the vertices that were sent earlier.
-        Map<I, List<Vertex<I, V, E, M>>> inVertexRangeMap =
+        Map<I, List<BasicVertex<I, V, E, M>>> inVertexRangeMap =
             getGraphMapper().getWorkerCommunications().getInVertexRangeMap();
         synchronized (inVertexRangeMap) {
-            for (Entry<I, List<Vertex<I, V, E, M>>> entry :
+            for (Entry<I, List<BasicVertex<I, V, E, M>>> entry :
                     inVertexRangeMap.entrySet()) {
                 if (entry.getValue() == null || entry.getValue().isEmpty()) {
                     continue;
                 }
 
-                SortedMap<I, MutableVertex<I, V, E, M>> vertexMap =
+                SortedMap<I, BasicVertex<I, V, E, M>> vertexMap =
                     getVertexRangeMap().get(entry.getKey()).getVertexMap();
                 if (vertexMap.size() != 0) {
                     throw new RuntimeException(
@@ -1376,7 +1375,7 @@ public class BspServiceWorker<
                              entry.getValue().size() +
                              " vertices for max index " + entry.getKey());
                 }
-                for (Vertex<I, V, E, M> vertex : entry.getValue()) {
+                for (BasicVertex<I, V, E, M> vertex : entry.getValue()) {
                     if (vertexMap.put(vertex.getVertexId(), vertex) != null) {
                         throw new IllegalStateException(
                             "exchangeVertexRanges: Vertex " + vertex +

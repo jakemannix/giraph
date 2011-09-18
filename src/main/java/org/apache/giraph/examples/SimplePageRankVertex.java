@@ -29,6 +29,7 @@ import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -136,8 +137,10 @@ public class SimplePageRankVertex extends LongDoubleFloatDoubleVertex {
         private static final Logger LOG =
             Logger.getLogger(SimplePageRankVertexReader.class);
         @Override
-        public boolean next(MutableVertex<LongWritable, DoubleWritable,
-                            FloatWritable, ?> vertex) throws IOException {
+        public boolean next(BasicVertex<LongWritable, DoubleWritable,
+                            FloatWritable, ?> basicVertex) throws IOException {
+            MutableVertex<LongWritable, DoubleWritable, FloatWritable, Writable> vertex =
+                (MutableVertex<LongWritable, DoubleWritable, FloatWritable, Writable>) basicVertex;
             if (totalRecords <= recordsRead) {
                 return false;
             }

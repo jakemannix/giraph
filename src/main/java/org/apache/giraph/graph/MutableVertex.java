@@ -30,7 +30,7 @@ import java.io.IOException;
 @SuppressWarnings("rawtypes")
 public abstract class MutableVertex<I extends WritableComparable,
         V extends Writable, E extends Writable, M extends Writable>
-        extends BasicVertex<I, V, E, M> implements Writable {
+        extends BasicVertex<I, V, E, M> {
     /**
      * Set the vertex id
      *
@@ -58,7 +58,8 @@ public abstract class MutableVertex<I extends WritableComparable,
 
     public MutableVertex<I, V, E, M> instantiateVertex() {
         MutableVertex<I, V, E, M> mutableVertex =
-                BspUtils.createVertex(getContext().getConfiguration(), getGraphState());
+            (MutableVertex<I, V, E, M>) BspUtils
+                .createVertex(getContext().getConfiguration(), getGraphState());
         return mutableVertex;
     }
     

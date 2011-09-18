@@ -19,12 +19,14 @@
 package org.apache.giraph.benchmark;
 
 import org.apache.giraph.bsp.BspInputSplit;
+import org.apache.giraph.graph.BasicVertex;
 import org.apache.giraph.graph.MutableVertex;
 import org.apache.giraph.graph.VertexInputFormat;
 import org.apache.giraph.graph.VertexReader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -133,8 +135,10 @@ public class PseudoRandomVertexInputFormat extends
 
         @Override
         public boolean next(
-                MutableVertex<LongWritable, DoubleWritable, DoubleWritable, ?>
-                vertex) throws IOException {
+              BasicVertex<LongWritable, DoubleWritable, DoubleWritable, ?>
+              basicVertex) throws IOException {
+            MutableVertex<LongWritable, DoubleWritable, DoubleWritable, Writable> vertex =
+                (MutableVertex<LongWritable, DoubleWritable, DoubleWritable, Writable>) basicVertex;
             if (verticesRead >= totalSplitVertices) {
                 return false;
             }

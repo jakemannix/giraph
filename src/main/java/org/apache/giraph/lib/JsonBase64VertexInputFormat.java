@@ -19,6 +19,7 @@
 package org.apache.giraph.lib;
 
 import net.iharder.Base64;
+import org.apache.giraph.graph.BasicVertex;
 import org.apache.giraph.graph.BspUtils;
 import org.apache.giraph.graph.Edge;
 import org.apache.giraph.graph.MutableVertex;
@@ -76,8 +77,10 @@ public class JsonBase64VertexInputFormat<
         }
 
         @Override
-        public boolean next(MutableVertex<I, V, E, ?> vertex)
+        public boolean next(BasicVertex<I, V, E, ?> basicVertex)
                 throws IOException, InterruptedException {
+            MutableVertex<I, V, E, Writable> vertex =
+                (MutableVertex<I, V, E, Writable>) basicVertex;
             if (!getRecordReader().nextKeyValue()) {
                 return false;
             }

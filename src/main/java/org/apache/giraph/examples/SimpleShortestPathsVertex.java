@@ -29,6 +29,7 @@ import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.RecordWriter;
@@ -135,9 +136,11 @@ public class SimpleShortestPathsVertex extends
         }
 
         @Override
-        public boolean next(MutableVertex<LongWritable,
-                            DoubleWritable, FloatWritable, ?> vertex)
+        public boolean next(BasicVertex<LongWritable,
+                            DoubleWritable, FloatWritable, ?> basicVertex)
                 throws IOException, InterruptedException {
+            MutableVertex<LongWritable, DoubleWritable, FloatWritable, Writable> vertex =
+                (MutableVertex<LongWritable, DoubleWritable, FloatWritable, Writable>) basicVertex;
             if (!getRecordReader().nextKeyValue()) {
                 return false;
             }

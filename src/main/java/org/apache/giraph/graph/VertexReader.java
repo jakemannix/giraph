@@ -18,12 +18,12 @@
 
 package org.apache.giraph.graph;
 
-import java.io.IOException;
-
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+
+import java.io.IOException;
 
 @SuppressWarnings("rawtypes")
 public interface VertexReader<
@@ -49,7 +49,7 @@ public interface VertexReader<
      * @return true iff a vertex and associated data was read, false if at EOF
      * @throws InterruptedException
      */
-    boolean next(MutableVertex<I, V, E, ?> vertex)
+    boolean next(BasicVertex<I, V, E, ?> vertex)
         throws IOException, InterruptedException;
 
     /**

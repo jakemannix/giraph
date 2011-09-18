@@ -101,9 +101,9 @@ public abstract class BasicRPCCommunications<
      * Map of vertex ranges to any incoming vertices from other workers.
      * (Synchronized)
      */
-    private final Map<I, List<Vertex<I, V, E, M>>>
+    private final Map<I, List<BasicVertex<I, V, E, M>>>
         inVertexRangeMap =
-            new TreeMap<I, List<Vertex<I, V, E, M>>>();
+            new TreeMap<I, List<BasicVertex<I, V, E, M>>>();
     /**
      * Map from vertex index to all vertex mutations
      */
@@ -632,11 +632,11 @@ end[HADOOP_FACEBOOK]*/
             }
             if (!inVertexRangeMap.containsKey(vertexIndexMax)) {
                 inVertexRangeMap.put(vertexIndexMax,
-                                     new ArrayList<Vertex<I, V, E, M>>());
+                                     new ArrayList<BasicVertex<I, V, E, M>>());
             }
-            List<Vertex<I, V, E, M>> tmpVertexList =
+            List<BasicVertex<I, V, E, M>> tmpVertexList =
                 inVertexRangeMap.get(vertexIndexMax);
-            for (Vertex<I, V, E, M> hadoopVertex : vertexList) {
+            for (BasicVertex<I, V, E, M> hadoopVertex : vertexList) {
                 tmpVertexList.add(hadoopVertex);
             }
         }
@@ -1074,7 +1074,7 @@ end[HADOOP_FACEBOOK]*/
     }
 
     @Override
-    public Map<I, List<Vertex<I, V, E, M>>> getInVertexRangeMap() {
+    public Map<I, List<BasicVertex<I, V, E, M>>> getInVertexRangeMap() {
         return inVertexRangeMap;
     }
 

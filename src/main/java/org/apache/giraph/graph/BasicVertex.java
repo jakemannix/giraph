@@ -37,7 +37,7 @@ import java.util.List;
 @SuppressWarnings("rawtypes")
 public abstract class BasicVertex<I extends WritableComparable,
         V extends Writable, E extends Writable, M extends Writable>
-        implements AggregatorUsage, Iterable<I> {
+        implements AggregatorUsage, Iterable<I>, Writable {
     /** Global graph state **/
     private GraphState<I,V,E,M> graphState;
 

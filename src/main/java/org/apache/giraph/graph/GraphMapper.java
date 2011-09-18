@@ -514,8 +514,9 @@ public class GraphMapper<I extends WritableComparable, V extends Writable,
         }
         mapAlreadyRun = true;
 
-        graphState.setSuperstep(serviceWorker.getSuperstep()).setContext(context).setGraphMapper(this)
-                  .setNumEdges(serviceWorker.getTotalEdges()).setNumVertices(serviceWorker.getTotalVertices());
+        graphState.setSuperstep(serviceWorker.getSuperstep()).setContext(context)
+                  .setGraphMapper(this).setNumEdges(serviceWorker.getTotalEdges())
+                  .setNumVertices(serviceWorker.getTotalVertices());
 
         try {
             serviceWorker.getRepresentativeVertex().setGraphState(graphState);
@@ -604,14 +605,14 @@ public class GraphMapper<I extends WritableComparable, V extends Writable,
                     continue;
                 }
 
-                for (MutableVertex<I, V, E, M> vertex :
+                for (BasicVertex<I, V, E, M> vertex :
                         entry.getValue().getVertexMap().values()) {
                     // Make sure every vertex has the current
                     // graphState before computing
 
                     vertex.setGraphState(graphState);
-                    if (vertex.isHalted() &&
-                            !vertex.getMsgList().isEmpty()) {
+                    if (vertex.isHalted() && !vertex.getMsgList().isEmpty()) {
+                      // TODO FIXME: if this is not a subclass of Vertex, this will blow up!
                         Vertex<I, V, E, M> activatedVertex =
                             (Vertex<I, V, E, M>) vertex;
                         activatedVertex.halt = false;

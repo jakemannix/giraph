@@ -209,12 +209,12 @@ public class BspUtils {
                    V extends Writable,
                    E extends Writable,
                    M extends Writable>
-            Class<? extends MutableVertex<I, V, E, M>>
+            Class<? extends BasicVertex<I, V, E, M>>
             getVertexClass(Configuration conf) {
-        return (Class<? extends Vertex<I, V, E, M>>)
+        return (Class<? extends BasicVertex<I, V, E, M>>)
                 conf.getClass(GiraphJob.VERTEX_CLASS,
                               null,
-                              MutableVertex.class);
+                              BasicVertex.class);
     }
 
     /**
@@ -225,13 +225,11 @@ public class BspUtils {
      */
     @SuppressWarnings("rawtypes")
     public static <I extends WritableComparable, V extends Writable,
-            E extends Writable, M extends Writable> MutableVertex<I, V, E, M>
+            E extends Writable, M extends Writable> BasicVertex<I, V, E, M>
             createVertex(Configuration conf,
             GraphState<I, V, E, M> graphState) {
-        Class<? extends MutableVertex<I, V, E, M>> vertexClass =
-            getVertexClass(conf);
-        MutableVertex<I, V, E, M> vertex =
-            ReflectionUtils.newInstance(vertexClass, conf);
+        Class<? extends BasicVertex<I, V, E, M>> vertexClass = getVertexClass(conf);
+        BasicVertex<I, V, E, M> vertex = ReflectionUtils.newInstance(vertexClass, conf);
         vertex.setGraphState(graphState);
         return vertex;
     }
