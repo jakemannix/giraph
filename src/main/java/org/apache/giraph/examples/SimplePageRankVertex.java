@@ -18,6 +18,7 @@
 
 package org.apache.giraph.examples;
 
+import com.google.common.collect.Maps;
 import org.apache.giraph.graph.BasicVertex;
 import org.apache.giraph.graph.BspUtils;
 import org.apache.giraph.graph.GraphState;
@@ -37,6 +38,7 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Demonstrates the basic Pregel PageRank implementation.
@@ -145,26 +147,26 @@ public class SimplePageRankVertex extends LongDoubleFloatDoubleVertex {
 
         @Override
         public boolean nextVertex() {
-           return totalRecords <= recordsRead;
+           return totalRecords > recordsRead;
         }
 
         @Override
-        public SimplePageRankVertex getCurrentVertex() throws IOException {
-            SimplePageRankVertex vertex = (SimplePageRankVertex)
-                BspUtils.createVertex(getGraphState().getContext().getConfiguration(),
+        public BasicVertex<LongWritable, DoubleWritable, FloatWritable, DoubleWritable>
+          getCurrentVertex() throws IOException {
+            BasicVertex<LongWritable, DoubleWritable, FloatWritable, DoubleWritable>
+                vertex = BspUtils.createVertex(getGraphState().getContext().getConfiguration(),
                     getGraphState());
 
-            vertex.setVertexId(new LongWritable(
-                (inputSplit.getSplitIndex() * totalRecords) + recordsRead));
-            vertex.setVertexValue(
-                new DoubleWritable(vertex.getVertexId().get() * 10d));
+            LongWritable vertexId = new LongWritable(
+                (inputSplit.getSplitIndex() * totalRecords) + recordsRead);
+            DoubleWritable vertexValue = new DoubleWritable(vertexId.get() * 10d);
             long destVertexId =
-                (vertex.getVertexId().get() + 1) %
+                (vertexId.get() + 1) %
                 (inputSplit.getNumSplits() * totalRecords);
-            float edgeValue = vertex.getVertexId().get() * 100f;
-            // Adds an edge to the neighbor vertex
-            vertex.addEdge(new LongWritable(destVertexId),
-                    new FloatWritable(edgeValue));
+            float edgeValue = vertexId.get() * 100f;
+            Map<LongWritable, FloatWritable> edges = Maps.newHashMap();
+            edges.put(new LongWritable(destVertexId), new FloatWritable(edgeValue));
+            vertex.initialize(vertexId, vertexValue, edges, null);
             ++recordsRead;
             LOG.info("next: Return vertexId=" + vertex.getVertexId().get() +
                 ", vertexValue=" + vertex.getVertexValue() +
