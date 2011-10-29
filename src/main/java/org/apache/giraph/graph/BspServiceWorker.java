@@ -692,8 +692,10 @@ public class BspServiceWorker<
             }
         }
 
-        LOG.info("marshalAggregatorValues: Finished assembling " +
-                 "aggregator values in JSONArray - " + aggregatorArray);
+        if (LOG.isInfoEnabled()) {
+	        LOG.info("marshalAggregatorValues: Finished assembling " +
+	                 "aggregator values in JSONArray - " + aggregatorArray);
+        }
         aggregatorInUse.clear();
         return aggregatorArray;
     }
@@ -1218,9 +1220,11 @@ public class BspServiceWorker<
                         @SuppressWarnings("unchecked")
                         int compareTo =
                             vertexRange.getMaxIndex().compareTo(maxVertexIndex);
-                        LOG.debug("loadCheckpoint: Comparing " +
-                                  vertexRange.getMaxIndex() + " and " +
-                                  maxVertexIndex + " = " + compareTo);
+                        if (LOG.isDebugEnabled()) {
+	                        LOG.debug("loadCheckpoint: Comparing " +
+	                                  vertexRange.getMaxIndex() + " and " +
+	                                  maxVertexIndex + " = " + compareTo);
+                        }
                         if (compareTo == 0) {
                             loadVertexRange(
                                 vertexRange.getMaxIndex(),

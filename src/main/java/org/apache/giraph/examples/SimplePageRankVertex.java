@@ -168,9 +168,11 @@ public class SimplePageRankVertex extends LongDoubleFloatDoubleVertex {
             edges.put(new LongWritable(destVertexId), new FloatWritable(edgeValue));
             vertex.initialize(vertexId, vertexValue, edges, null);
             ++recordsRead;
-            LOG.info("next: Return vertexId=" + vertex.getVertexId().get() +
-                ", vertexValue=" + vertex.getVertexValue() +
-                ", destinationId=" + destVertexId + ", edgeValue=" + edgeValue);
+            if (LOG.isInfoEnabled()) {
+	            LOG.info("next: Return vertexId=" + vertex.getVertexId().get() +
+	                ", vertexValue=" + vertex.getVertexValue() +
+	                ", destinationId=" + destVertexId + ", edgeValue=" + edgeValue);
+            }
             return vertex;
         }
     }
