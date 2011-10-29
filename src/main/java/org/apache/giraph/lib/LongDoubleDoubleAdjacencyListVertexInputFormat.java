@@ -18,9 +18,11 @@
 package org.apache.giraph.lib;
 
 import org.apache.giraph.graph.Edge;
+import org.apache.giraph.graph.GraphState;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -35,19 +37,21 @@ import java.io.IOException;
  * to repesent a vertex with id 22, value of 0.1 and edges to nodes 45 and 99,
  * with values of 0.3 and 0.44, respectively.
  */
-public class LongDoubleDoubleAdjacencyListVertexInputFormat extends
-    TextVertexInputFormat<LongWritable, DoubleWritable, DoubleWritable>  {
+public class LongDoubleDoubleAdjacencyListVertexInputFormat<M extends Writable> extends
+    TextVertexInputFormat<LongWritable, DoubleWritable, DoubleWritable, M>  {
 
-  static class VertexReader extends
-      AdjacencyListVertexReader<LongWritable, DoubleWritable, DoubleWritable> {
+  static class VertexReader<M extends Writable> extends
+      AdjacencyListVertexReader<LongWritable, DoubleWritable, DoubleWritable, M> {
 
-    VertexReader(RecordReader<LongWritable, Text> lineRecordReader) {
-      super(lineRecordReader);
+    VertexReader(RecordReader<LongWritable, Text> lineRecordReader,
+        GraphState<LongWritable, DoubleWritable, DoubleWritable, M> graphState) {
+      super(lineRecordReader, graphState);
     }
 
     VertexReader(RecordReader<LongWritable, Text> lineRecordReader,
-                 LineSanitizer sanitizer) {
-      super(lineRecordReader, sanitizer);
+                 LineSanitizer sanitizer,
+                 GraphState<LongWritable, DoubleWritable, DoubleWritable, M> graphState) {
+      super(lineRecordReader, sanitizer, graphState);
     }
 
     @Override
@@ -71,6 +75,6 @@ public class LongDoubleDoubleAdjacencyListVertexInputFormat extends
   @Override
   public org.apache.giraph.graph.VertexReader createVertexReader(InputSplit split,
       TaskAttemptContext context) throws IOException {
-    return new VertexReader(textInputFormat.createRecordReader(split, context));
+    return new VertexReader(textInputFormat.createRecordReader(split, context), getGraphState());
   }
 }

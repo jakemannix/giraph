@@ -18,9 +18,11 @@
 package org.apache.giraph.lib;
 
 import org.apache.giraph.graph.Edge;
+import org.apache.giraph.graph.GraphState;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -32,19 +34,21 @@ import java.io.IOException;
  * Strings and values as doubles.  This is a good inputformat for reading
  * graphs where the id types do not matter and can be stashed in a String.
  */
-public class TextDoubleDoubleAdjacencyListVertexInputFormat
-    extends TextVertexInputFormat<Text, DoubleWritable, DoubleWritable>  {
+public class TextDoubleDoubleAdjacencyListVertexInputFormat<M extends Writable>
+    extends TextVertexInputFormat<Text, DoubleWritable, DoubleWritable, M>  {
 
-  static class VertexReader extends AdjacencyListVertexReader<Text,
-      DoubleWritable, DoubleWritable> {
+  static class VertexReader<M extends Writable> extends AdjacencyListVertexReader<Text,
+      DoubleWritable, DoubleWritable, M> {
 
-    VertexReader(RecordReader<LongWritable, Text> lineRecordReader) {
-      super(lineRecordReader);
+    VertexReader(RecordReader<LongWritable, Text> lineRecordReader,
+        GraphState<Text, DoubleWritable, DoubleWritable, M> graphState) {
+      super(lineRecordReader, graphState);
     }
 
     VertexReader(RecordReader<LongWritable, Text> lineRecordReader,
-                 LineSanitizer sanitizer) {
-      super(lineRecordReader, sanitizer);
+                 LineSanitizer sanitizer,
+                 GraphState<Text, DoubleWritable, DoubleWritable, M> graphState) {
+      super(lineRecordReader, sanitizer, graphState);
     }
 
     @Override
@@ -68,7 +72,7 @@ public class TextDoubleDoubleAdjacencyListVertexInputFormat
   @Override
   public org.apache.giraph.graph.VertexReader createVertexReader(InputSplit split,
                                  TaskAttemptContext context) throws IOException {
-    return new VertexReader(textInputFormat.createRecordReader(split, context));
+    return new VertexReader(textInputFormat.createRecordReader(split, context), getGraphState());
   }
 
 }
