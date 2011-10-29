@@ -37,10 +37,11 @@ public class BspUtils {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static <I extends WritableComparable,
                    V extends Writable,
-                   E extends Writable>
-            Class<? extends VertexInputFormat<I, V, E>>
+                   E extends Writable,
+                   M extends Writable>
+            Class<? extends VertexInputFormat<I, V, E, M>>
             getVertexInputFormatClass(Configuration conf) {
-        return (Class<? extends VertexInputFormat<I, V, E>>)
+        return (Class<? extends VertexInputFormat<I, V, E, M>>)
                 conf.getClass(GiraphJob.VERTEX_INPUT_FORMAT_CLASS,
                               null,
                               VertexInputFormat.class);
@@ -53,12 +54,18 @@ public class BspUtils {
      * @return Instantiated user vertex input format class
      */
     @SuppressWarnings("rawtypes")
-    public static <I extends WritableComparable, V extends Writable,
-            E extends Writable> VertexInputFormat<I, V, E>
-            createVertexInputFormat(Configuration conf) {
-        Class<? extends VertexInputFormat<I, V, E>> vertexInputFormatClass =
+    public static <I extends WritableComparable,
+                   V extends Writable,
+                   E extends Writable,
+                   M extends Writable> VertexInputFormat<I, V, E, M>
+            createVertexInputFormat(Configuration conf,
+        GraphState<I, V, E, M> graphState) {
+        Class<? extends VertexInputFormat<I, V, E, M>> vertexInputFormatClass =
             getVertexInputFormatClass(conf);
-        return ReflectionUtils.newInstance(vertexInputFormatClass, conf);
+        VertexInputFormat<I, V, E, M> inputFormat =
+            ReflectionUtils.newInstance(vertexInputFormatClass, conf);
+        inputFormat.setGraphState(graphState);
+        return inputFormat;
     }
 
     /**

@@ -385,15 +385,14 @@ public class BspServiceWorker<
             InputSplit inputSplit) throws IOException, InterruptedException {
         List<BasicVertex<I, V, E, M>> vertexList =
             new ArrayList<BasicVertex<I, V, E, M>>();
-        VertexInputFormat<I, V, E> vertexInputFormat =
-            BspUtils.<I, V, E>createVertexInputFormat(getConfiguration());
-        VertexReader<I, V, E> vertexReader =
+        VertexInputFormat<I, V, E, M> vertexInputFormat =
+            BspUtils.<I, V, E, M>createVertexInputFormat(getConfiguration(),
+                getGraphMapper().getGraphState());
+        VertexReader<I, V, E, M> vertexReader =
             vertexInputFormat.createVertexReader(inputSplit, getContext());
         vertexReader.initialize(inputSplit, getContext());
-        BasicVertex<I, V, E, M> readerVertex =
-                BspUtils.<I, V, E, M>createVertex(
-                        getConfiguration(), getGraphMapper().getGraphState());
-        while (vertexReader.next(readerVertex)) {
+        while (vertexReader.nextVertex()) {
+            BasicVertex<I, V, E, M> readerVertex = vertexReader.getCurrentVertex();
             if (readerVertex.getVertexId() == null) {
                 throw new IllegalArgumentException(
                     "loadVertices: Vertex reader returned a vertex " +
@@ -418,8 +417,6 @@ public class BspServiceWorker<
                 }
             }
             vertexList.add(readerVertex);
-            readerVertex = BspUtils.createVertex(getConfiguration(),
-                getGraphMapper().getGraphState());
             getContext().progress();
         }
         vertexReader.close();

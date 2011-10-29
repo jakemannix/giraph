@@ -18,16 +18,16 @@
 
 package org.apache.giraph.examples;
 
-import java.io.IOException;
-
+import org.apache.giraph.bsp.BspInputSplit;
+import org.apache.giraph.graph.GraphState;
+import org.apache.giraph.graph.VertexReader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
-import org.apache.giraph.bsp.BspInputSplit;
-import org.apache.giraph.graph.VertexReader;
+import java.io.IOException;
 
 /**
  * Used by GeneratedVertexInputFormat to read some generated data
@@ -38,8 +38,9 @@ import org.apache.giraph.graph.VertexReader;
  */
 @SuppressWarnings("rawtypes")
 public abstract class GeneratedVertexReader<
-        I extends WritableComparable, V extends Writable, E extends Writable>
-        implements VertexReader<I, V, E> {
+        I extends WritableComparable, V extends Writable, E extends Writable,
+        M extends Writable>
+        implements VertexReader<I, V, E, M> {
     /** Records read so far */
     protected long recordsRead = 0;
     /** Total records to read (on this split alone) */
@@ -47,9 +48,17 @@ public abstract class GeneratedVertexReader<
     /** The input split from initialize(). */
     protected BspInputSplit inputSplit = null;
 
+    private Configuration conf = null;
+
+    private GraphState<I, V, E, M> graphState = null;
+
     public static final String READER_VERTICES =
         "TestVertexReader.reader_vertices";
     public static final long DEFAULT_READER_VERTICES = 10;
+
+    public GeneratedVertexReader(GraphState<I, V, E, M> graphState) {
+        this.graphState = graphState;
+    }
 
     @Override
     final public void initialize(InputSplit inputSplit,
@@ -69,5 +78,19 @@ public abstract class GeneratedVertexReader<
     @Override
     final public float getProgress() throws IOException {
         return recordsRead * 100.0f / totalRecords;
+    }
+
+    @Override
+    public void setConf(Configuration conf) {
+        this.conf = conf;
+    }
+
+    @Override
+    public Configuration getConf() {
+        return conf;
+    }
+
+    public GraphState<I, V, E, M> getGraphState() {
+        return graphState;
     }
 }

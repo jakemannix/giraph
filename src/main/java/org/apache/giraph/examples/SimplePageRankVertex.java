@@ -19,8 +19,9 @@
 package org.apache.giraph.examples;
 
 import org.apache.giraph.graph.BasicVertex;
+import org.apache.giraph.graph.BspUtils;
+import org.apache.giraph.graph.GraphState;
 import org.apache.giraph.graph.LongDoubleFloatDoubleVertex;
-import org.apache.giraph.graph.MutableVertex;
 import org.apache.giraph.graph.VertexReader;
 import org.apache.giraph.graph.VertexWriter;
 import org.apache.giraph.lib.TextVertexOutputFormat;
@@ -29,7 +30,6 @@ import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -132,18 +132,27 @@ public class SimplePageRankVertex extends LongDoubleFloatDoubleVertex {
      * Simple VertexReader that supports {@link SimplePageRankVertex}
      */
     public static class SimplePageRankVertexReader extends
-            GeneratedVertexReader<LongWritable, DoubleWritable, FloatWritable> {
+            GeneratedVertexReader<LongWritable, DoubleWritable, FloatWritable,
+                DoubleWritable> {
         /** Class logger */
         private static final Logger LOG =
             Logger.getLogger(SimplePageRankVertexReader.class);
+
+        public SimplePageRankVertexReader(GraphState<LongWritable,
+            DoubleWritable, FloatWritable, DoubleWritable> graphState) {
+            super(graphState);
+        }
+
         @Override
-        public boolean next(BasicVertex<LongWritable, DoubleWritable,
-                            FloatWritable, ?> basicVertex) throws IOException {
-            MutableVertex<LongWritable, DoubleWritable, FloatWritable, Writable> vertex =
-                (MutableVertex<LongWritable, DoubleWritable, FloatWritable, Writable>) basicVertex;
-            if (totalRecords <= recordsRead) {
-                return false;
-            }
+        public boolean nextVertex() {
+           return totalRecords <= recordsRead;
+        }
+
+        @Override
+        public SimplePageRankVertex getCurrentVertex() throws IOException {
+            SimplePageRankVertex vertex = (SimplePageRankVertex)
+                BspUtils.createVertex(getConf(), getGraphState());
+
             vertex.setVertexId(new LongWritable(
                 (inputSplit.getSplitIndex() * totalRecords) + recordsRead));
             vertex.setVertexValue(
@@ -159,7 +168,7 @@ public class SimplePageRankVertex extends LongDoubleFloatDoubleVertex {
             LOG.info("next: Return vertexId=" + vertex.getVertexId().get() +
                 ", vertexValue=" + vertex.getVertexValue() +
                 ", destinationId=" + destVertexId + ", edgeValue=" + edgeValue);
-            return true;
+            return vertex;
         }
     }
 
@@ -168,13 +177,13 @@ public class SimplePageRankVertex extends LongDoubleFloatDoubleVertex {
      */
     public static class SimplePageRankVertexInputFormat extends
             GeneratedVertexInputFormat<LongWritable,
-            DoubleWritable, FloatWritable> {
+            DoubleWritable, FloatWritable, DoubleWritable> {
         @Override
-        public VertexReader<LongWritable, DoubleWritable, FloatWritable>
+        public VertexReader<LongWritable, DoubleWritable, FloatWritable, DoubleWritable>
                 createVertexReader(InputSplit split,
                                    TaskAttemptContext context)
                                    throws IOException {
-            return new SimplePageRankVertexReader();
+            return new SimplePageRankVertexReader(getGraphState());
         }
     }
 

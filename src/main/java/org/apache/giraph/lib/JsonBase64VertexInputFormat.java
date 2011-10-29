@@ -22,6 +22,7 @@ import net.iharder.Base64;
 import org.apache.giraph.graph.BasicVertex;
 import org.apache.giraph.graph.BspUtils;
 import org.apache.giraph.graph.Edge;
+import org.apache.giraph.graph.GraphState;
 import org.apache.giraph.graph.MutableVertex;
 import org.apache.giraph.graph.VertexReader;
 import org.apache.hadoop.conf.Configuration;
@@ -53,8 +54,9 @@ import java.io.IOException;
  */
 @SuppressWarnings("rawtypes")
 public class JsonBase64VertexInputFormat<
-        I extends WritableComparable, V extends Writable, E extends Writable>
-        extends TextVertexInputFormat<I, V, E> implements
+        I extends WritableComparable, V extends Writable, E extends Writable,
+        M extends Writable>
+        extends TextVertexInputFormat<I, V, E, M> implements
         JsonBase64VertexFormat {
     /**
      * Simple reader that supports {@link JsonBase64VertexInputFormat}
@@ -65,27 +67,31 @@ public class JsonBase64VertexInputFormat<
      */
     private static class JsonBase64VertexReader<
             I extends WritableComparable, V extends Writable,
-            E extends Writable> extends TextVertexReader<I, V, E> {
+            E extends Writable, M extends Writable> extends TextVertexReader<I, V, E, M> {
         /**
          * Only constructor.  Requires the LineRecordReader
          *
          * @param lineRecordReader Line record reader to read from
          */
         public JsonBase64VertexReader(
-                RecordReader<LongWritable, Text> lineRecordReader) {
-            super(lineRecordReader);
+                RecordReader<LongWritable, Text> lineRecordReader,
+                GraphState<I, V, E, M> graphState) {
+            super(lineRecordReader, graphState);
         }
 
         @Override
-        public boolean next(BasicVertex<I, V, E, ?> basicVertex)
-                throws IOException, InterruptedException {
-            MutableVertex<I, V, E, Writable> vertex =
-                (MutableVertex<I, V, E, Writable>) basicVertex;
-            if (!getRecordReader().nextKeyValue()) {
-                return false;
-            }
+        public boolean nextVertex() throws IOException, InterruptedException {
+            return getRecordReader().nextKeyValue();
+        }
 
+        @Override
+        public BasicVertex<I, V, E, M> getCurrentVertex()
+                throws IOException, InterruptedException {
             Configuration conf = getContext().getConfiguration();
+            MutableVertex<I, V, E, Writable> vertex =
+                (MutableVertex<I, V, E, Writable>)
+                    BspUtils.createVertex(conf, graphState);
+
             Text line = getRecordReader().getCurrentValue();
             JSONObject vertexObject;
             try {
@@ -142,15 +148,16 @@ public class JsonBase64VertexInputFormat<
                 edge.readFields(input);
                 vertex.addEdge(edge.getDestVertexId(), edge.getEdgeValue());
             }
-            return true;
+            return vertex;
         }
     }
 
     @Override
-    public VertexReader<I, V, E> createVertexReader(
+    public VertexReader<I, V, E, M> createVertexReader(
             InputSplit split,
             TaskAttemptContext context) throws IOException {
-        return new JsonBase64VertexReader<I, V, E>(
-            textInputFormat.createRecordReader(split, context));
+        return new JsonBase64VertexReader<I, V, E, M>(
+                textInputFormat.createRecordReader(split, context),
+                getGraphState());
     }
 }

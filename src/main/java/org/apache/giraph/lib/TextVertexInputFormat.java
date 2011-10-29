@@ -18,9 +18,7 @@
 
 package org.apache.giraph.lib;
 
-import java.io.IOException;
-import java.util.List;
-
+import org.apache.giraph.graph.GraphState;
 import org.apache.giraph.graph.VertexInputFormat;
 import org.apache.giraph.graph.VertexReader;
 import org.apache.hadoop.io.LongWritable;
@@ -33,6 +31,9 @@ import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 
+import java.io.IOException;
+import java.util.List;
+
 /**
  * Abstract class that users should subclass to use their own text based
  * vertex output format.
@@ -43,8 +44,11 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
  */
 @SuppressWarnings("rawtypes")
 public abstract class TextVertexInputFormat<
-        I extends WritableComparable, V extends Writable, E extends Writable>
-        extends VertexInputFormat<I, V, E> {
+        I extends WritableComparable,
+        V extends Writable,
+        E extends Writable,
+        M extends Writable>
+        extends VertexInputFormat<I, V, E, M> {
     /** Uses the TextInputFormat to do everything */
     protected TextInputFormat textInputFormat = new TextInputFormat();
 
@@ -58,12 +62,14 @@ public abstract class TextVertexInputFormat<
      * @param <E> Edge value
      */
     public static abstract class TextVertexReader<I extends WritableComparable,
-            V extends Writable, E extends Writable>
-            implements VertexReader<I, V, E> {
+            V extends Writable, E extends Writable, M extends Writable>
+            implements VertexReader<I, V, E, M> {
         /** Internal line record reader */
         private final RecordReader<LongWritable, Text> lineRecordReader;
         /** Context passed to initialize */
         private TaskAttemptContext context;
+
+        protected final GraphState<I, V, E, M> graphState;
 
         /**
          * Initialize with the LineRecordReader.
@@ -71,8 +77,10 @@ public abstract class TextVertexInputFormat<
          * @param lineRecordReader Line record reader from TextInputFormat
          */
         public TextVertexReader(
-                RecordReader<LongWritable, Text> lineRecordReader) {
+                RecordReader<LongWritable, Text> lineRecordReader,
+                GraphState<I, V, E, M> graphState) {
             this.lineRecordReader = lineRecordReader;
+            this.graphState = graphState;
         }
 
         @Override
