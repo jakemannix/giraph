@@ -18,11 +18,11 @@
 
 package org.apache.giraph.examples;
 
+import com.google.common.collect.Maps;
 import org.apache.giraph.graph.BasicVertex;
 import org.apache.giraph.graph.BspUtils;
 import org.apache.giraph.graph.GiraphJob;
 import org.apache.giraph.graph.GraphState;
-import org.apache.giraph.graph.MutableVertex;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.graph.VertexReader;
 import org.apache.giraph.graph.VertexWriter;
@@ -50,6 +50,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Demonstrates the basic Pregel shortest paths implementation.
@@ -154,26 +155,24 @@ public class SimpleShortestPathsVertex extends
         public BasicVertex<LongWritable, DoubleWritable, FloatWritable,
                            DoubleWritable> getCurrentVertex()
             throws IOException, InterruptedException {
-          MutableVertex<LongWritable, DoubleWritable, FloatWritable,
-              DoubleWritable> vertex = (MutableVertex<LongWritable,
-              DoubleWritable, FloatWritable, DoubleWritable>)
-              BspUtils.<LongWritable, DoubleWritable, FloatWritable,
+          BasicVertex<LongWritable, DoubleWritable, FloatWritable,
+              DoubleWritable> vertex = BspUtils.<LongWritable, DoubleWritable, FloatWritable,
                   DoubleWritable>createVertex(getContext().getConfiguration(),
                   graphState);
 
             Text line = getRecordReader().getCurrentValue();
             try {
                 JSONArray jsonVertex = new JSONArray(line.toString());
-                vertex.setVertexId(
-                    new LongWritable(jsonVertex.getLong(0)));
-                vertex.setVertexValue(
-                    new DoubleWritable(jsonVertex.getDouble(1)));
+                LongWritable vertexId = new LongWritable(jsonVertex.getLong(0));
+                DoubleWritable vertexValue = new DoubleWritable(jsonVertex.getDouble(1));
+                Map<LongWritable, FloatWritable> edges = Maps.newHashMap();
                 JSONArray jsonEdgeArray = jsonVertex.getJSONArray(2);
                 for (int i = 0; i < jsonEdgeArray.length(); ++i) {
                     JSONArray jsonEdge = jsonEdgeArray.getJSONArray(i);
-                    vertex.addEdge(new LongWritable(jsonEdge.getLong(0)),
+                    edges.put(new LongWritable(jsonEdge.getLong(0)),
                             new FloatWritable((float) jsonEdge.getDouble(1)));
                 }
+                vertex.initialize(vertexId, vertexValue, edges, null);
             } catch (JSONException e) {
                 throw new IllegalArgumentException(
                     "next: Couldn't get vertex from line " + line, e);

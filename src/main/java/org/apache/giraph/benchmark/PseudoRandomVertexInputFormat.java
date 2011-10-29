@@ -18,9 +18,11 @@
 
 package org.apache.giraph.benchmark;
 
+import com.google.common.collect.Maps;
 import org.apache.giraph.bsp.BspInputSplit;
 import org.apache.giraph.graph.BasicVertex;
-import org.apache.giraph.graph.MutableVertex;
+import org.apache.giraph.graph.BspUtils;
+import org.apache.giraph.graph.GraphState;
 import org.apache.giraph.graph.VertexInputFormat;
 import org.apache.giraph.graph.VertexReader;
 import org.apache.hadoop.conf.Configuration;
@@ -35,6 +37,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -43,8 +46,8 @@ import java.util.Random;
  * and edges per vertex that is repeatable for the exact same parameter
  * (pseudo-random).
  */
-public class PseudoRandomVertexInputFormat extends
-        VertexInputFormat<LongWritable, DoubleWritable, DoubleWritable> {
+public class PseudoRandomVertexInputFormat<M extends Writable> extends
+        VertexInputFormat<LongWritable, DoubleWritable, DoubleWritable, M> {
     /** Set the number of aggregate vertices */
     public static final String AGGREGATE_VERTICES =
         "pseduoRandomVertexReader.aggregateVertices";
@@ -65,18 +68,18 @@ public class PseudoRandomVertexInputFormat extends
     }
 
     @Override
-    public VertexReader<LongWritable, DoubleWritable, DoubleWritable>
+    public VertexReader<LongWritable, DoubleWritable, DoubleWritable, M>
             createVertexReader(InputSplit split, TaskAttemptContext context)
             throws IOException {
-        return new PseudoRandomVertexReader();
+        return new PseudoRandomVertexReader(getGraphState());
     }
 
     /**
      * Used by {@link PseudoRandomVertexInputFormat} to read
      * pseudo-randomly generated data
      */
-    private static class PseudoRandomVertexReader implements
-            VertexReader<LongWritable, DoubleWritable, DoubleWritable> {
+    private static class PseudoRandomVertexReader<M extends Writable> implements
+            VertexReader<LongWritable, DoubleWritable, DoubleWritable, M> {
         /** Logger */
         private static final Logger LOG =
             Logger.getLogger(PseudoRandomVertexReader.class);
@@ -92,6 +95,17 @@ public class PseudoRandomVertexInputFormat extends
         private long edgesPerVertex = -1;
         /** BspInputSplit (used only for index) */
         private BspInputSplit bspInputSplit;
+
+        private GraphState<LongWritable, DoubleWritable, DoubleWritable, M> graphState;
+
+        public PseudoRandomVertexReader(
+            GraphState<LongWritable, DoubleWritable, DoubleWritable, M> graphState) {
+          this.graphState = graphState;
+        }
+
+        public GraphState<LongWritable, DoubleWritable, DoubleWritable, M> getGraphState() {
+          return graphState;
+        }
 
         @Override
         public void initialize(InputSplit inputSplit,
@@ -134,21 +148,23 @@ public class PseudoRandomVertexInputFormat extends
         }
 
         @Override
-        public boolean next(
-              BasicVertex<LongWritable, DoubleWritable, DoubleWritable, ?>
-              basicVertex) throws IOException {
-            MutableVertex<LongWritable, DoubleWritable, DoubleWritable, Writable> vertex =
-                (MutableVertex<LongWritable, DoubleWritable, DoubleWritable, Writable>) basicVertex;
-            if (verticesRead >= totalSplitVertices) {
-                return false;
-            }
+        public boolean nextVertex() throws IOException, InterruptedException {
+          return totalSplitVertices > verticesRead;
+        }
+
+        @Override
+        public BasicVertex<LongWritable, DoubleWritable, DoubleWritable, M> getCurrentVertex()
+            throws IOException, InterruptedException {
+            BasicVertex<LongWritable, DoubleWritable, DoubleWritable, M> vertex =
+                BspUtils.createVertex(getGraphState().getContext().getConfiguration(),
+                    getGraphState());
             long vertexId = startingVertexId + verticesRead;
             // Seed on the vertex id to keep the vertex data the same when
             // on different number of workers, but other parameters are the
             // same.
             Random rand = new Random(vertexId);
-            vertex.setVertexId(new LongWritable(vertexId));
-            vertex.setVertexValue(new DoubleWritable(rand.nextDouble()));
+            DoubleWritable vertexValue = new DoubleWritable(rand.nextDouble());
+            Map<LongWritable, DoubleWritable> edges = Maps.newHashMap();
             for (long i = 0; i < edgesPerVertex; ++i) {
                 LongWritable destVertexId = null;
                 do {
@@ -156,8 +172,9 @@ public class PseudoRandomVertexInputFormat extends
                         new LongWritable(Math.abs(rand.nextLong()) %
                                          aggregateVertices);
                 } while (vertex.hasEdge(destVertexId));
-                vertex.addEdge(destVertexId, new DoubleWritable(rand.nextDouble()));
+                edges.put(destVertexId, new DoubleWritable(rand.nextDouble()));
             }
+            vertex.initialize(new LongWritable(vertexId), vertexValue, edges, null);
 
             ++verticesRead;
             if (LOG.isDebugEnabled()) {
@@ -166,7 +183,7 @@ public class PseudoRandomVertexInputFormat extends
                           ", vertexValue=" + vertex.getVertexValue() +
                           ", edgeMap=" + vertex.iterator());
             }
-            return true;
+            return vertex;
         }
 
         @Override

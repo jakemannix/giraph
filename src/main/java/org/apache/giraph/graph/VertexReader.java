@@ -18,7 +18,6 @@
 
 package org.apache.giraph.graph;
 
-import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -31,7 +30,7 @@ public interface VertexReader<
         I extends WritableComparable,
         V extends Writable,
         E extends Writable,
-        M extends Writable> extends Configurable {
+        M extends Writable> {
     /**
      * Use the input split and context to setup reading the vertices.
      * Guaranteed to be called prior to any other function.

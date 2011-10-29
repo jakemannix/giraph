@@ -31,6 +31,7 @@ import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public abstract class LongDoubleFloatDoubleVertex extends
         MutableVertex<LongWritable, DoubleWritable, FloatWritable, DoubleWritable> {
@@ -43,6 +44,27 @@ public abstract class LongDoubleFloatDoubleVertex extends
     private DoubleArrayList messageList = new DoubleArrayList();
     /** If true, do not do anymore computation on this vertex. */
     boolean halt = false;
+
+    @Override
+    public void initialize(LongWritable vertexIdW, DoubleWritable vertexValueW,
+        Map<LongWritable, FloatWritable> edgesW, List<DoubleWritable> messagesW) {
+      if(vertexIdW != null ) {
+        vertexId = vertexIdW.get();
+      }
+      if(vertexValueW != null) {
+        vertexValue = vertexValueW.get();
+      }
+      if(edgesW != null) {
+        for(Map.Entry<LongWritable, FloatWritable> entry : edgesW.entrySet()) {
+         verticesWithEdgeValues.put(entry.getKey().get(), entry.getValue().get());
+        }
+      }
+      if(messagesW != null) {
+        for(DoubleWritable m : messagesW) {
+          messageList.add(m.get());
+        }
+      }
+    }
 
     @Override
     public void preApplication()
@@ -153,7 +175,23 @@ public abstract class LongDoubleFloatDoubleVertex extends
 
     @Override
     public Iterator<LongWritable> iterator() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+      final long[] destVertices = verticesWithEdgeValues.keys().elements();
+      final LongWritable lw = new LongWritable();
+      return new Iterator<LongWritable>() {
+        int offset = 0;
+        @Override public boolean hasNext() {
+          return offset < destVertices.length;
+        }
+
+        @Override public LongWritable next() {
+          lw.set(destVertices[offset++]);
+          return lw;
+        }
+
+        @Override public void remove() {
+          throw new UnsupportedOperationException("Mutation disallowed for edge list via iterator");
+        }
+      };
     }
 
     @Override

@@ -175,8 +175,8 @@ public class GraphMapper<I extends WritableComparable, V extends Writable,
         Type edgeValueType = classList.get(2);
         Type messageValueType = classList.get(3);
 
-        Class<? extends VertexInputFormat<I, V, E>> vertexInputFormatClass =
-            BspUtils.<I, V, E>getVertexInputFormatClass(conf);
+        Class<? extends VertexInputFormat<I, V, E, M>> vertexInputFormatClass =
+            BspUtils.<I, V, E, M>getVertexInputFormatClass(conf);
         classList = ReflectionUtils.<VertexInputFormat>getTypeArguments(
             VertexInputFormat.class, vertexInputFormatClass);
         if (classList.get(0) == null) {

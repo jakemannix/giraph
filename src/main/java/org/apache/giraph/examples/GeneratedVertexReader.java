@@ -48,8 +48,6 @@ public abstract class GeneratedVertexReader<
     /** The input split from initialize(). */
     protected BspInputSplit inputSplit = null;
 
-    private Configuration conf = null;
-
     private GraphState<I, V, E, M> graphState = null;
 
     public static final String READER_VERTICES =
@@ -78,16 +76,6 @@ public abstract class GeneratedVertexReader<
     @Override
     final public float getProgress() throws IOException {
         return recordsRead * 100.0f / totalRecords;
-    }
-
-    @Override
-    public void setConf(Configuration conf) {
-        this.conf = conf;
-    }
-
-    @Override
-    public Configuration getConf() {
-        return conf;
     }
 
     public GraphState<I, V, E, M> getGraphState() {

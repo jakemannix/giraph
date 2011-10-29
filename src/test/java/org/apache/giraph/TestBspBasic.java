@@ -104,8 +104,8 @@ public class TestBspBasic extends BspCase {
             BspUtils.createVertex(job.getConfiguration(), gs);
         System.out.println("testInstantiateVertex: superstep=" +
                            vertex.getSuperstep());
-        VertexInputFormat<LongWritable, IntWritable, FloatWritable>
-            inputFormat = BspUtils.createVertexInputFormat(job.getConfiguration());
+        VertexInputFormat<LongWritable, IntWritable, FloatWritable, IntWritable>
+            inputFormat = BspUtils.createVertexInputFormat(job.getConfiguration(), gs);
         List<InputSplit> splitArray =
             inputFormat.getSplits(
                 new JobContext(new Configuration(), new JobID()), 1);
@@ -282,9 +282,11 @@ public class TestBspBasic extends BspCase {
             System.out.println("testBspPageRank: maxPageRank=" + maxPageRank +
                                " minPageRank=" + minPageRank +
                                " numVertices=" + numVertices);
-            assertTrue(maxPageRank > 34.030 && maxPageRank < 34.0301);
-            assertTrue(minPageRank > 0.03 && minPageRank < 0.03001);
-            assertTrue(numVertices == 5);
+            assertTrue("34.030 !< " + maxPageRank + " !< " + " 34.0301",
+                maxPageRank > 34.030 && maxPageRank < 34.0301);
+            assertTrue("0.03 !< " + minPageRank + " !< " + "0.03001",
+                minPageRank > 0.03 && minPageRank < 0.03001);
+            assertTrue("numVertices = " + numVertices + " != 5", numVertices == 5);
         }
     }
 

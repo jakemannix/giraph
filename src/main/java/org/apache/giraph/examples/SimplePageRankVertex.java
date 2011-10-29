@@ -151,7 +151,8 @@ public class SimplePageRankVertex extends LongDoubleFloatDoubleVertex {
         @Override
         public SimplePageRankVertex getCurrentVertex() throws IOException {
             SimplePageRankVertex vertex = (SimplePageRankVertex)
-                BspUtils.createVertex(getConf(), getGraphState());
+                BspUtils.createVertex(getGraphState().getContext().getConfiguration(),
+                    getGraphState());
 
             vertex.setVertexId(new LongWritable(
                 (inputSplit.getSplitIndex() * totalRecords) + recordsRead));
