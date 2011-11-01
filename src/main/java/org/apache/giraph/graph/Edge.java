@@ -84,7 +84,7 @@ public class Edge<I extends WritableComparable, E extends Writable>
      * @param destVertexId new destination vertex
      */
     public void setDestVertexId(I destVertexId) {
-       this.destVertexId = destVertexId;
+        this.destVertexId = destVertexId;
     }
 
     /**
@@ -93,7 +93,7 @@ public class Edge<I extends WritableComparable, E extends Writable>
      * @param edgeValue new edge value
      */
     public void setEdgeValue(E edgeValue) {
-       this.edgeValue = edgeValue;
+        this.edgeValue = edgeValue;
     }
 
     @Override
@@ -137,31 +137,31 @@ public class Edge<I extends WritableComparable, E extends Writable>
 
     @Override
     public int compareTo(Edge<I, E> edge) {
-      return destVertexId.compareTo(edge.getDestVertexId());
+        return destVertexId.compareTo(edge.getDestVertexId());
     }
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) { return true; }
-      if (o == null || getClass() != o.getClass()) { return false; }
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
 
-      Edge edge = (Edge) o;
+        Edge edge = (Edge) o;
 
-      if (destVertexId != null ? !destVertexId.equals(edge.destVertexId) :
-          edge.destVertexId != null) {
-        return false;
-      }
-      if (edgeValue != null ? !edgeValue.equals(edge.edgeValue) : edge.edgeValue != null) {
-        return false;
-      }
+        if (destVertexId != null ? !destVertexId.equals(edge.destVertexId) :
+            edge.destVertexId != null) {
+            return false;
+        }
+        if (edgeValue != null ? !edgeValue.equals(edge.edgeValue) : edge.edgeValue != null) {
+            return false;
+        }
 
-      return true;
+        return true;
     }
 
     @Override
     public int hashCode() {
-      int result = destVertexId != null ? destVertexId.hashCode() : 0;
-      result = 31 * result + (edgeValue != null ? edgeValue.hashCode() : 0);
-      return result;
+        int result = destVertexId != null ? destVertexId.hashCode() : 0;
+        result = 31 * result + (edgeValue != null ? edgeValue.hashCode() : 0);
+        return result;
     }
 }
