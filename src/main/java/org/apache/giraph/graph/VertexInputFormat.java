@@ -41,8 +41,6 @@ import java.util.List;
 public abstract class VertexInputFormat<I extends WritableComparable,
         V extends Writable, E extends Writable, M extends Writable> {
 
-  private GraphState<I, V, E, M> graphState;
-
     /**
      * Logically split the vertices for a graph processing application.
      *
@@ -79,12 +77,4 @@ public abstract class VertexInputFormat<I extends WritableComparable,
     public abstract VertexReader<I, V, E, M> createVertexReader(
         InputSplit split,
         TaskAttemptContext context) throws IOException;
-
-    public GraphState<I, V, E, M> getGraphState() {
-        return graphState;
-    }
-
-    public void setGraphState(GraphState<I, V, E, M> graphState) {
-        this.graphState = graphState;
-    }
 }

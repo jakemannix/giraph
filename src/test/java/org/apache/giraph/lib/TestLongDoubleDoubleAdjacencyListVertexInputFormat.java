@@ -65,8 +65,7 @@ public class TestLongDoubleDoubleAdjacencyListVertexInputFormat extends TestCase
 
     when(rr.getCurrentValue()).thenReturn(new Text(input));
     LongDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable> vr =
-        new LongDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr,
-            graphState);
+        new LongDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr);
 
     vr.initialize(null, tac);
 
@@ -84,7 +83,7 @@ public class TestLongDoubleDoubleAdjacencyListVertexInputFormat extends TestCase
 
     when(rr.getCurrentValue()).thenReturn(new Text(input));
     LongDoubleDoubleAdjacencyListVertexInputFormat.VertexReader vr =
-        new LongDoubleDoubleAdjacencyListVertexInputFormat.VertexReader(rr, graphState);
+        new LongDoubleDoubleAdjacencyListVertexInputFormat.VertexReader(rr);
 
     vr.initialize(null, tac);
 
@@ -102,8 +101,7 @@ public class TestLongDoubleDoubleAdjacencyListVertexInputFormat extends TestCase
 
     when(rr.getCurrentValue()).thenReturn(new Text(input));
     LongDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable> vr =
-        new LongDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr,
-            graphState);
+        new LongDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr);
 
     vr.initialize(null, tac);
 
@@ -125,8 +123,7 @@ public class TestLongDoubleDoubleAdjacencyListVertexInputFormat extends TestCase
     when(rr.getCurrentValue()).thenReturn(new Text(input));
     conf.set(AdjacencyListVertexReader.LINE_TOKENIZE_VALUE, ":");
     LongDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable> vr =
-        new LongDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr,
-            graphState);
+        new LongDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr);
 
     vr.initialize(null, tac);
     assertTrue("Should have been able to read vertex", vr.nextVertex());

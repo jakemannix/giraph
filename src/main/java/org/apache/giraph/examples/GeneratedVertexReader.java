@@ -19,7 +19,6 @@
 package org.apache.giraph.examples;
 
 import org.apache.giraph.bsp.BspInputSplit;
-import org.apache.giraph.graph.GraphState;
 import org.apache.giraph.graph.VertexReader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
@@ -48,25 +47,24 @@ public abstract class GeneratedVertexReader<
     /** The input split from initialize(). */
     protected BspInputSplit inputSplit = null;
 
-    private GraphState<I, V, E, M> graphState = null;
+    protected Configuration configuration = null;
 
     public static final String READER_VERTICES =
         "TestVertexReader.reader_vertices";
     public static final long DEFAULT_READER_VERTICES = 10;
 
-    public GeneratedVertexReader(GraphState<I, V, E, M> graphState) {
-        this.graphState = graphState;
+    public GeneratedVertexReader() {
     }
 
     @Override
     final public void initialize(InputSplit inputSplit,
                                  TaskAttemptContext context)
             throws IOException {
-        Configuration configuration = context.getConfiguration();
-            totalRecords = configuration.getLong(
+        configuration = context.getConfiguration();
+        totalRecords = configuration.getLong(
                 GeneratedVertexReader.READER_VERTICES,
                 GeneratedVertexReader.DEFAULT_READER_VERTICES);
-            this.inputSplit = (BspInputSplit) inputSplit;
+        this.inputSplit = (BspInputSplit) inputSplit;
     }
 
     @Override
@@ -76,9 +74,5 @@ public abstract class GeneratedVertexReader<
     @Override
     final public float getProgress() throws IOException {
         return recordsRead * 100.0f / totalRecords;
-    }
-
-    public GraphState<I, V, E, M> getGraphState() {
-        return graphState;
     }
 }

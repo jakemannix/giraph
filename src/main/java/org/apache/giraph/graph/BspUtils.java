@@ -58,13 +58,11 @@ public class BspUtils {
                    V extends Writable,
                    E extends Writable,
                    M extends Writable> VertexInputFormat<I, V, E, M>
-            createVertexInputFormat(Configuration conf,
-        GraphState<I, V, E, M> graphState) {
+            createVertexInputFormat(Configuration conf) {
         Class<? extends VertexInputFormat<I, V, E, M>> vertexInputFormatClass =
             getVertexInputFormatClass(conf);
         VertexInputFormat<I, V, E, M> inputFormat =
             ReflectionUtils.newInstance(vertexInputFormatClass, conf);
-        inputFormat.setGraphState(graphState);
         return inputFormat;
     }
 

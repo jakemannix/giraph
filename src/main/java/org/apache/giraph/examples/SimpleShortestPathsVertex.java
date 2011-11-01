@@ -22,7 +22,6 @@ import com.google.common.collect.Maps;
 import org.apache.giraph.graph.BasicVertex;
 import org.apache.giraph.graph.BspUtils;
 import org.apache.giraph.graph.GiraphJob;
-import org.apache.giraph.graph.GraphState;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.graph.VertexReader;
 import org.apache.giraph.graph.VertexWriter;
@@ -122,8 +121,7 @@ public class SimpleShortestPathsVertex extends
                                    TaskAttemptContext context)
                                    throws IOException {
             return new SimpleShortestPathsVertexReader(
-                textInputFormat.createRecordReader(split, context),
-                getGraphState());
+                textInputFormat.createRecordReader(split, context));
         }
     }
 
@@ -143,11 +141,7 @@ public class SimpleShortestPathsVertex extends
                 DoubleWritable, FloatWritable, DoubleWritable> {
 
         public SimpleShortestPathsVertexReader(
-                RecordReader<LongWritable, Text> lineRecordReader,
-                GraphState<LongWritable,
-                           DoubleWritable,
-                           FloatWritable,
-                           DoubleWritable> graphState) {
+                RecordReader<LongWritable, Text> lineRecordReader) {
             super(lineRecordReader);
         }
 

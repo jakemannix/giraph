@@ -200,8 +200,7 @@ public class BspServiceMaster<
      */
     private List<InputSplit> generateInputSplits(int numWorkers) {
         VertexInputFormat<I, V, E, M> vertexInputFormat =
-            BspUtils.<I, V, E, M>createVertexInputFormat(getConfiguration(),
-                getGraphMapper().getGraphState());
+            BspUtils.<I, V, E, M>createVertexInputFormat(getConfiguration());
         List<InputSplit> splits;
         try {
             splits = vertexInputFormat.getSplits(getContext(), numWorkers);

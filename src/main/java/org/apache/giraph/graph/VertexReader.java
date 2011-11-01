@@ -43,8 +43,20 @@ public interface VertexReader<
     void initialize(InputSplit inputSplit, TaskAttemptContext context)
         throws IOException, InterruptedException;
 
+    /**
+     *
+     * @return false iff there are no more vertices
+     * @throws IOException
+     * @throws InterruptedException
+     */
     boolean nextVertex() throws IOException, InterruptedException;
 
+    /**
+     *
+     * @return the current vertex which has been read.  nextVertex() should be called first.
+     * @throws IOException
+     * @throws InterruptedException
+     */
     BasicVertex<I, V, E, M> getCurrentVertex() throws IOException, InterruptedException;
 
     /**

@@ -386,8 +386,7 @@ public class BspServiceWorker<
         List<BasicVertex<I, V, E, M>> vertexList =
             new ArrayList<BasicVertex<I, V, E, M>>();
         VertexInputFormat<I, V, E, M> vertexInputFormat =
-            BspUtils.<I, V, E, M>createVertexInputFormat(getConfiguration(),
-                getGraphMapper().getGraphState());
+            BspUtils.<I, V, E, M>createVertexInputFormat(getConfiguration());
         VertexReader<I, V, E, M> vertexReader =
             vertexInputFormat.createVertexReader(inputSplit, getContext());
         vertexReader.initialize(inputSplit, getContext());

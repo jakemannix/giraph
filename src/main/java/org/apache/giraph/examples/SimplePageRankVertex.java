@@ -21,7 +21,6 @@ package org.apache.giraph.examples;
 import com.google.common.collect.Maps;
 import org.apache.giraph.graph.BasicVertex;
 import org.apache.giraph.graph.BspUtils;
-import org.apache.giraph.graph.GraphState;
 import org.apache.giraph.graph.LongDoubleFloatDoubleVertex;
 import org.apache.giraph.graph.VertexReader;
 import org.apache.giraph.graph.VertexWriter;
@@ -140,9 +139,8 @@ public class SimplePageRankVertex extends LongDoubleFloatDoubleVertex {
         private static final Logger LOG =
             Logger.getLogger(SimplePageRankVertexReader.class);
 
-        public SimplePageRankVertexReader(GraphState<LongWritable,
-            DoubleWritable, FloatWritable, DoubleWritable> graphState) {
-            super(graphState);
+        public SimplePageRankVertexReader() {
+            super();
         }
 
         @Override
@@ -154,7 +152,7 @@ public class SimplePageRankVertex extends LongDoubleFloatDoubleVertex {
         public BasicVertex<LongWritable, DoubleWritable, FloatWritable, DoubleWritable>
           getCurrentVertex() throws IOException {
             BasicVertex<LongWritable, DoubleWritable, FloatWritable, DoubleWritable>
-                vertex = BspUtils.createVertex(getGraphState().getContext().getConfiguration());
+                vertex = BspUtils.createVertex(configuration);
 
             LongWritable vertexId = new LongWritable(
                 (inputSplit.getSplitIndex() * totalRecords) + recordsRead);
@@ -187,7 +185,7 @@ public class SimplePageRankVertex extends LongDoubleFloatDoubleVertex {
                 createVertexReader(InputSplit split,
                                    TaskAttemptContext context)
                                    throws IOException {
-            return new SimplePageRankVertexReader(getGraphState());
+            return new SimplePageRankVertexReader();
         }
     }
 

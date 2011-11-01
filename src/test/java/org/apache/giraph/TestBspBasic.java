@@ -104,7 +104,7 @@ public class TestBspBasic extends BspCase {
             BspUtils.createVertex(job.getConfiguration());
 
         VertexInputFormat<LongWritable, IntWritable, FloatWritable, IntWritable>
-            inputFormat = BspUtils.createVertexInputFormat(job.getConfiguration(), gs);
+            inputFormat = BspUtils.createVertexInputFormat(job.getConfiguration());
         List<InputSplit> splitArray =
             inputFormat.getSplits(
                 new JobContext(new Configuration(), new JobID()), 1);

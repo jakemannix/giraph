@@ -18,7 +18,6 @@
 package org.apache.giraph.lib;
 
 import org.apache.giraph.graph.Edge;
-import org.apache.giraph.graph.GraphState;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -43,14 +42,12 @@ public class LongDoubleDoubleAdjacencyListVertexInputFormat<M extends Writable> 
   static class VertexReader<M extends Writable> extends
       AdjacencyListVertexReader<LongWritable, DoubleWritable, DoubleWritable, M> {
 
-    VertexReader(RecordReader<LongWritable, Text> lineRecordReader,
-        GraphState<LongWritable, DoubleWritable, DoubleWritable, M> graphState) {
+    VertexReader(RecordReader<LongWritable, Text> lineRecordReader) {
       super(lineRecordReader);
     }
 
     VertexReader(RecordReader<LongWritable, Text> lineRecordReader,
-                 LineSanitizer sanitizer,
-                 GraphState<LongWritable, DoubleWritable, DoubleWritable, M> graphState) {
+                 LineSanitizer sanitizer) {
       super(lineRecordReader, sanitizer);
     }
 
@@ -75,6 +72,6 @@ public class LongDoubleDoubleAdjacencyListVertexInputFormat<M extends Writable> 
   @Override
   public org.apache.giraph.graph.VertexReader createVertexReader(InputSplit split,
       TaskAttemptContext context) throws IOException {
-    return new VertexReader(textInputFormat.createRecordReader(split, context), getGraphState());
+    return new VertexReader(textInputFormat.createRecordReader(split, context));
   }
 }

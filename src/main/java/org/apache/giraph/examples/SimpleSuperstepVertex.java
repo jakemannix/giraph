@@ -21,7 +21,6 @@ package org.apache.giraph.examples;
 import com.google.common.collect.Maps;
 import org.apache.giraph.graph.BasicVertex;
 import org.apache.giraph.graph.BspUtils;
-import org.apache.giraph.graph.GraphState;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.graph.VertexReader;
 import org.apache.giraph.graph.VertexWriter;
@@ -66,9 +65,8 @@ public class SimpleSuperstepVertex extends
             return totalRecords > recordsRead;
         }
 
-        public SimpleSuperstepVertexReader(
-            GraphState<LongWritable, IntWritable, FloatWritable, IntWritable> graphState) {
-            super(graphState);
+        public SimpleSuperstepVertexReader() {
+            super();
         }
 
         @Override
@@ -76,7 +74,7 @@ public class SimpleSuperstepVertex extends
             throws IOException, InterruptedException {
             BasicVertex<LongWritable, IntWritable, FloatWritable, IntWritable> vertex =
                 BspUtils.<LongWritable, IntWritable, FloatWritable, IntWritable>createVertex(
-                    getGraphState().getContext().getConfiguration());
+                    configuration);
             LongWritable vertexId = new LongWritable(
                 (inputSplit.getSplitIndex() * totalRecords) + recordsRead);
             IntWritable vertexValue = new IntWritable((int) (vertexId.get() * 10));
@@ -107,7 +105,7 @@ public class SimpleSuperstepVertex extends
                 createVertexReader(InputSplit split,
                                    TaskAttemptContext context)
                                    throws IOException {
-            return new SimpleSuperstepVertexReader(getGraphState());
+            return new SimpleSuperstepVertexReader();
         }
     }
 
