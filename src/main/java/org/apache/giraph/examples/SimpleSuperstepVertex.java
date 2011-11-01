@@ -63,12 +63,12 @@ public class SimpleSuperstepVertex extends
             Logger.getLogger(SimpleSuperstepVertexReader.class);
         @Override
         public boolean nextVertex() throws IOException, InterruptedException {
-          return totalRecords > recordsRead;
+            return totalRecords > recordsRead;
         }
 
         public SimpleSuperstepVertexReader(
             GraphState<LongWritable, IntWritable, FloatWritable, IntWritable> graphState) {
-          super(graphState);
+            super(graphState);
         }
 
         @Override
@@ -87,10 +87,10 @@ public class SimpleSuperstepVertex extends
             vertex.initialize(vertexId, vertexValue, edgeMap, null);
             ++recordsRead;
             if (LOG.isInfoEnabled()) {
-	            LOG.info("next: Return vertexId=" + vertex.getVertexId().get() +
-	                ", vertexValue=" + vertex.getVertexValue() +
-	                ", destinationId=" + destVertexId +
-	                ", edgeValue=" + edgeValue);
+                LOG.info("next: Return vertexId=" + vertex.getVertexId().get() +
+                         ", vertexValue=" + vertex.getVertexValue() +
+                         ", destinationId=" + destVertexId +
+                         ", edgeValue=" + edgeValue);
             }
             return vertex;
         }
