@@ -18,29 +18,6 @@
 
 package org.apache.giraph.comm;
 
-import java.io.IOException;
-
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NavigableMap;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import org.apache.log4j.Logger;
-
 import org.apache.giraph.bsp.CentralizedServiceWorker;
 import org.apache.giraph.graph.BasicVertex;
 import org.apache.giraph.graph.BspUtils;
@@ -65,6 +42,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +52,9 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /*if[HADOOP_FACEBOOK]
 import org.apache.hadoop.ipc.ProtocolSignature;
@@ -677,7 +659,7 @@ end[HADOOP_FACEBOOK]*/
                      addr + ", with vertex index " + vertexIndexMax +
                      ", list " + vertexList);
         }
-        if(peerConnections.get(addr).isProxy == false) {
+        if (peerConnections.get(addr).isProxy == false) {
             throw new RuntimeException("sendVertexList: Impossible to send " +
                 "to self for vertex index max " + vertexIndexMax);
         }

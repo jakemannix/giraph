@@ -65,20 +65,20 @@ public abstract class Vertex<I extends WritableComparable, V extends Writable,
 
     @Override
     public void initialize(I vertexId, V vertexValue, Map<I, E> edges, List<M> messages) {
-      if(vertexId != null) {
-        setVertexId(vertexId);
-      }
-      if(vertexValue != null) {
-        setVertexValue(vertexValue);
-      }
-      if(edges != null && !edges.isEmpty()) {
-        for(Map.Entry<I, E> entry : edges.entrySet()) {
-          destEdgeMap.put(entry.getKey(), new Edge<I, E>(entry.getKey(), entry.getValue()));
+        if (vertexId != null) {
+            setVertexId(vertexId);
         }
-      }
-      if(messages != null && !messages.isEmpty()) {
-        msgList.addAll(messages);
-      }
+        if (vertexValue != null) {
+          setVertexValue(vertexValue);
+        }
+        if (edges != null && !edges.isEmpty()) {
+          for(Map.Entry<I, E> entry : edges.entrySet()) {
+            destEdgeMap.put(entry.getKey(), new Edge<I, E>(entry.getKey(), entry.getValue()));
+          }
+        }
+        if (messages != null && !messages.isEmpty()) {
+            msgList.addAll(messages);
+        }
     }
 
     @Override

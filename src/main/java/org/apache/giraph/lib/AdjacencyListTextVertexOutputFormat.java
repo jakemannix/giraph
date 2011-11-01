@@ -54,7 +54,7 @@ public class AdjacencyListTextVertexOutputFormat <I extends WritableComparable,
     @Override
     public void writeVertex(BasicVertex<I, V, E, ?> vertex) throws IOException,
         InterruptedException {
-      if(delimiter == null) {
+      if (delimiter == null) {
         delimiter = getContext().getConfiguration()
            .get(LINE_TOKENIZE_VALUE, LINE_TOKENIZE_VALUE_DEFAULT);
       }

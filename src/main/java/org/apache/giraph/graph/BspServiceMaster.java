@@ -1782,7 +1782,7 @@ public class BspServiceMaster<
             }
         }
         incrCachedSuperstep();
-        if(getSuperstep() > 0) {  // counter starts at zero, so no need to incr
+        if (getSuperstep() > 0) {  // counter starts at zero, so no need to incr
             superstepCounter.increment(1);
         }
         try {

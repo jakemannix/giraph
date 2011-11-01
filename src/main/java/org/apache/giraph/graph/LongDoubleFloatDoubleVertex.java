@@ -48,18 +48,18 @@ public abstract class LongDoubleFloatDoubleVertex extends
     @Override
     public void initialize(LongWritable vertexIdW, DoubleWritable vertexValueW,
         Map<LongWritable, FloatWritable> edgesW, List<DoubleWritable> messagesW) {
-      if(vertexIdW != null ) {
+      if (vertexIdW != null ) {
         vertexId = vertexIdW.get();
       }
-      if(vertexValueW != null) {
+      if (vertexValueW != null) {
         vertexValue = vertexValueW.get();
       }
-      if(edgesW != null) {
+      if (edgesW != null) {
         for(Map.Entry<LongWritable, FloatWritable> entry : edgesW.entrySet()) {
          verticesWithEdgeValues.put(entry.getKey().get(), entry.getValue().get());
         }
       }
-      if(messagesW != null) {
+      if (messagesW != null) {
         for(DoubleWritable m : messagesW) {
           messageList.add(m.get());
         }
@@ -105,7 +105,7 @@ public abstract class LongDoubleFloatDoubleVertex extends
     @Override
     public FloatWritable removeEdge(LongWritable targetVertexId) {
         long target = targetVertexId.get();
-        if(verticesWithEdgeValues.containsKey(target)) {
+        if (verticesWithEdgeValues.containsKey(target)) {
             float value = verticesWithEdgeValues.get(target);
             verticesWithEdgeValues.removeKey(target);
             return new FloatWritable(value);
