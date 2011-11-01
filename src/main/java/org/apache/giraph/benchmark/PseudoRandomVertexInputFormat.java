@@ -145,7 +145,7 @@ public class PseudoRandomVertexInputFormat<M extends Writable> extends
 
         @Override
         public boolean nextVertex() throws IOException, InterruptedException {
-          return totalSplitVertices > verticesRead;
+            return totalSplitVertices > verticesRead;
         }
 
         @Override
