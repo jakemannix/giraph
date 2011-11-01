@@ -147,7 +147,7 @@ public class SimplePageRankVertex extends LongDoubleFloatDoubleVertex {
 
         @Override
         public boolean nextVertex() {
-           return totalRecords > recordsRead;
+            return totalRecords > recordsRead;
         }
 
         @Override
@@ -168,9 +168,9 @@ public class SimplePageRankVertex extends LongDoubleFloatDoubleVertex {
             vertex.initialize(vertexId, vertexValue, edges, null);
             ++recordsRead;
             if (LOG.isInfoEnabled()) {
-	            LOG.info("next: Return vertexId=" + vertex.getVertexId().get() +
-	                ", vertexValue=" + vertex.getVertexValue() +
-	                ", destinationId=" + destVertexId + ", edgeValue=" + edgeValue);
+	        LOG.info("next: Return vertexId=" + vertex.getVertexId().get() +
+	                 ", vertexValue=" + vertex.getVertexValue() +
+	                 ", destinationId=" + destVertexId + ", edgeValue=" + edgeValue);
             }
             return vertex;
         }
