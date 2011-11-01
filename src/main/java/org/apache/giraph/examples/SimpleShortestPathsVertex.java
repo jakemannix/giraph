@@ -176,7 +176,7 @@ public class SimpleShortestPathsVertex extends
                 throw new IllegalArgumentException(
                     "next: Couldn't get vertex from line " + line, e);
             }
-          return vertex;
+            return vertex;
         }
 
         @Override
