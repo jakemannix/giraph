@@ -158,8 +158,9 @@ public abstract class LongDoubleFloatDoubleVertex extends
     }
     @Override
     public MutableVertex<LongWritable, DoubleWritable, FloatWritable, DoubleWritable> instantiateVertex() {
-        LongDoubleFloatDoubleVertex vertex = (LongDoubleFloatDoubleVertex) BspUtils.createVertex(
-                getGraphState().getContext().getConfiguration(), getGraphState());
+        LongDoubleFloatDoubleVertex vertex = (LongDoubleFloatDoubleVertex)
+            BspUtils.<LongWritable, DoubleWritable, FloatWritable, DoubleWritable>createVertex(
+                getGraphState().getContext().getConfiguration());
         return vertex;
     }
 

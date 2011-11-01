@@ -38,6 +38,7 @@ import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -70,8 +71,7 @@ public class TestTextDoubleDoubleAdjacencyListVertexInputFormat extends TestCase
 
     when(rr.getCurrentValue()).thenReturn(new Text(input));
     TextDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable> vr =
-        new TextDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr,
-            graphState);
+        new TextDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr);
 
     vr.initialize(null, tac);
 
@@ -89,9 +89,7 @@ public class TestTextDoubleDoubleAdjacencyListVertexInputFormat extends TestCase
 
     when(rr.getCurrentValue()).thenReturn(new Text(input));
     TextDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable> vr =
-        new TextDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr,
-            graphState);
-
+        new TextDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr);
     vr.initialize(null, tac);
     try {
       vr.nextVertex();
@@ -102,11 +100,22 @@ public class TestTextDoubleDoubleAdjacencyListVertexInputFormat extends TestCase
     }
   }
 
+  public static void setGraphState(BasicVertex vertex, GraphState graphState) throws Exception {
+    Class<? extends BasicVertex> c = BasicVertex.class;
+    Method m = c.getDeclaredMethod("setGraphState", GraphState.class);
+    m.setAccessible(true);
+    m.invoke(vertex, graphState);
+  }
+
   public static <I extends WritableComparable, V extends Writable,
       E extends Writable, M extends Writable> void assertValidVertex(Configuration conf,
       GraphState<I, V, E, M> graphState, BasicVertex<I, V, E, M> actual,
-      I expectedId, V expectedValue, Edge<I, E>... edges) {
-    BasicVertex<I, V, E, M> expected = BspUtils.createVertex(conf, graphState);
+      I expectedId, V expectedValue, Edge<I, E>... edges)
+      throws Exception {
+    BasicVertex<I, V, E, M> expected = BspUtils.createVertex(conf);
+    setGraphState(expected, graphState);
+
+    // FIXME! maybe can't work if not instantiated properly
     Map<I, E> edgeMap = Maps.newHashMap();
     for(Edge<I, E> edge : edges) {
       edgeMap.put(edge.getDestVertexId(), edge.getEdgeValue());
@@ -136,18 +145,18 @@ public class TestTextDoubleDoubleAdjacencyListVertexInputFormat extends TestCase
     }
   }
 
-  public void testHappyPath() throws IOException, InterruptedException {
+  public void testHappyPath() throws Exception {
     String input = "Hi\t0\tCiao\t1.123\tBomdia\t2.234\tOla\t3.345";
 
     when(rr.getCurrentValue()).thenReturn(new Text(input));
     TextDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable> vr =
-        new TextDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr,
-            graphState);
+        new TextDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr);
 
     vr.initialize(null, tac);
     assertTrue("Should have been able to add a vertex", vr.nextVertex());
     BasicVertex<Text, DoubleWritable, DoubleWritable, BooleanWritable> vertex =
         vr.getCurrentVertex();
+    setGraphState(vertex, graphState);
     assertValidVertex(conf, graphState, vertex, new Text("Hi"), new DoubleWritable(0),
         new Edge<Text, DoubleWritable>(new Text("Ciao"), new DoubleWritable(1.123d)),
         new Edge<Text, DoubleWritable>(new Text("Bomdia"), new DoubleWritable(2.234d)),
@@ -155,7 +164,7 @@ public class TestTextDoubleDoubleAdjacencyListVertexInputFormat extends TestCase
     assertEquals(vertex.getNumOutEdges(), 3);
   }
 
-  public void testLineSanitizer() throws IOException, InterruptedException {
+  public void testLineSanitizer() throws Exception {
     String input = "Bye\t0.01\tCiao\t1.001\tTchau\t2.0001\tAdios\t3.00001";
 
     AdjacencyListVertexReader.LineSanitizer toUpper =
@@ -168,32 +177,35 @@ public class TestTextDoubleDoubleAdjacencyListVertexInputFormat extends TestCase
 
     when(rr.getCurrentValue()).thenReturn(new Text(input));
     TextDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable> vr =
-        new TextDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr,
-            toUpper, graphState);
+        new TextDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr, toUpper);
 
     vr.initialize(null, tac);
     assertTrue("Should have been able to read vertex", vr.nextVertex());
     BasicVertex<Text, DoubleWritable, DoubleWritable, BooleanWritable> vertex =
         vr.getCurrentVertex();
-
-    assertValidVertex(conf, graphState, vertex, new Text("BYE"), new DoubleWritable(0.01d), new Edge<Text, DoubleWritable>(new Text("CIAO"), new DoubleWritable(1.001d)), new Edge<Text, DoubleWritable>(new Text("TCHAU"), new DoubleWritable(2.0001d)), new Edge<Text, DoubleWritable>(new Text("ADIOS"), new DoubleWritable(3.00001d)));
+    setGraphState(vertex, graphState);
+    assertValidVertex(conf, graphState, vertex,
+        new Text("BYE"), new DoubleWritable(0.01d),
+        new Edge<Text, DoubleWritable>(new Text("CIAO"), new DoubleWritable(1.001d)),
+        new Edge<Text, DoubleWritable>(new Text("TCHAU"), new DoubleWritable(2.0001d)),
+        new Edge<Text, DoubleWritable>(new Text("ADIOS"), new DoubleWritable(3.00001d)));
 
     assertEquals(vertex.getNumOutEdges(), 3);
   }
 
-  public void testDifferentSeparators() throws IOException, InterruptedException {
+  public void testDifferentSeparators() throws Exception {
     String input = "alpha:42:beta:99";
 
     when(rr.getCurrentValue()).thenReturn(new Text(input));
     conf.set(AdjacencyListVertexReader.LINE_TOKENIZE_VALUE, ":");
     TextDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable> vr =
-        new TextDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr,
-            graphState);
+        new TextDoubleDoubleAdjacencyListVertexInputFormat.VertexReader<BooleanWritable>(rr);
 
     vr.initialize(null, tac);
     assertTrue("Should have been able to read vertex", vr.nextVertex());
     BasicVertex<Text, DoubleWritable, DoubleWritable, BooleanWritable> vertex =
         vr.getCurrentVertex();
+    setGraphState(vertex, graphState);
     assertValidVertex(conf, graphState, vertex, new Text("alpha"), new DoubleWritable(42d),
         new Edge<Text, DoubleWritable>(new Text("beta"), new DoubleWritable(99d)));
     assertEquals(vertex.getNumOutEdges(), 1);

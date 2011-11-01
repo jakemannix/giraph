@@ -23,7 +23,6 @@ import net.iharder.Base64;
 import org.apache.giraph.graph.BasicVertex;
 import org.apache.giraph.graph.BspUtils;
 import org.apache.giraph.graph.Edge;
-import org.apache.giraph.graph.GraphState;
 import org.apache.giraph.graph.VertexReader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
@@ -74,10 +73,8 @@ public class JsonBase64VertexInputFormat<
          *
          * @param lineRecordReader Line record reader to read from
          */
-        public JsonBase64VertexReader(
-                RecordReader<LongWritable, Text> lineRecordReader,
-                GraphState<I, V, E, M> graphState) {
-            super(lineRecordReader, graphState);
+        public JsonBase64VertexReader(RecordReader<LongWritable, Text> lineRecordReader) {
+            super(lineRecordReader);
         }
 
         @Override
@@ -89,8 +86,7 @@ public class JsonBase64VertexInputFormat<
         public BasicVertex<I, V, E, M> getCurrentVertex()
                 throws IOException, InterruptedException {
             Configuration conf = getContext().getConfiguration();
-            BasicVertex<I, V, E, M> vertex =
-                    BspUtils.createVertex(conf, graphState);
+            BasicVertex<I, V, E, M> vertex = BspUtils.createVertex(conf);
 
             Text line = getRecordReader().getCurrentValue();
             JSONObject vertexObject;
@@ -158,8 +154,7 @@ public class JsonBase64VertexInputFormat<
     public VertexReader<I, V, E, M> createVertexReader(
             InputSplit split,
             TaskAttemptContext context) throws IOException {
-        return new JsonBase64VertexReader<I, V, E, M>(
-                textInputFormat.createRecordReader(split, context),
-                getGraphState());
+        return new JsonBase64VertexReader<I, V, E, M>(textInputFormat.createRecordReader(split,
+            context));
     }
 }

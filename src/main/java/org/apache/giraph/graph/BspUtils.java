@@ -233,11 +233,9 @@ public class BspUtils {
     @SuppressWarnings("rawtypes")
     public static <I extends WritableComparable, V extends Writable,
             E extends Writable, M extends Writable> BasicVertex<I, V, E, M>
-            createVertex(Configuration conf,
-            GraphState<I, V, E, M> graphState) {
+            createVertex(Configuration conf) {
         Class<? extends BasicVertex<I, V, E, M>> vertexClass = getVertexClass(conf);
         BasicVertex<I, V, E, M> vertex = ReflectionUtils.newInstance(vertexClass, conf);
-        vertex.setGraphState(graphState);
         return vertex;
     }
 

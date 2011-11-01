@@ -45,13 +45,13 @@ public class LongDoubleDoubleAdjacencyListVertexInputFormat<M extends Writable> 
 
     VertexReader(RecordReader<LongWritable, Text> lineRecordReader,
         GraphState<LongWritable, DoubleWritable, DoubleWritable, M> graphState) {
-      super(lineRecordReader, graphState);
+      super(lineRecordReader);
     }
 
     VertexReader(RecordReader<LongWritable, Text> lineRecordReader,
                  LineSanitizer sanitizer,
                  GraphState<LongWritable, DoubleWritable, DoubleWritable, M> graphState) {
-      super(lineRecordReader, sanitizer, graphState);
+      super(lineRecordReader, sanitizer);
     }
 
     @Override

@@ -21,7 +21,6 @@ import com.google.common.collect.Maps;
 import org.apache.giraph.graph.BasicVertex;
 import org.apache.giraph.graph.BspUtils;
 import org.apache.giraph.graph.Edge;
-import org.apache.giraph.graph.GraphState;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -65,14 +64,13 @@ abstract class AdjacencyListVertexReader<I extends WritableComparable,
 
   private LineSanitizer sanitizer = null;
 
-  AdjacencyListVertexReader(RecordReader<LongWritable, Text> lineRecordReader,
-      GraphState<I, V, E, M> graphState) {
-    super(lineRecordReader, graphState);
+  AdjacencyListVertexReader(RecordReader<LongWritable, Text> lineRecordReader) {
+    super(lineRecordReader);
   }
 
   AdjacencyListVertexReader(RecordReader<LongWritable, Text> lineRecordReader,
-      LineSanitizer sanitizer, GraphState<I, V, E, M> graphState) {
-    super(lineRecordReader, graphState);
+      LineSanitizer sanitizer) {
+    super(lineRecordReader);
     this.sanitizer = sanitizer;
   }
 
@@ -108,7 +106,7 @@ abstract class AdjacencyListVertexReader<I extends WritableComparable,
   public BasicVertex<I, V, E, M> getCurrentVertex() throws IOException, InterruptedException {
     Configuration conf = getContext().getConfiguration();
     String line = getRecordReader().getCurrentValue().toString();
-    BasicVertex<I, V, E, M> vertex = BspUtils.createVertex(conf, graphState);
+    BasicVertex<I, V, E, M> vertex = BspUtils.createVertex(conf);
 
     if (sanitizer != null) {
       line = sanitizer.sanitize(line);

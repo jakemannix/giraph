@@ -18,7 +18,6 @@
 
 package org.apache.giraph.lib;
 
-import org.apache.giraph.graph.GraphState;
 import org.apache.giraph.graph.VertexInputFormat;
 import org.apache.giraph.graph.VertexReader;
 import org.apache.hadoop.io.LongWritable;
@@ -69,18 +68,14 @@ public abstract class TextVertexInputFormat<
         /** Context passed to initialize */
         private TaskAttemptContext context;
 
-        protected final GraphState<I, V, E, M> graphState;
-
         /**
          * Initialize with the LineRecordReader.
          *
          * @param lineRecordReader Line record reader from TextInputFormat
          */
         public TextVertexReader(
-                RecordReader<LongWritable, Text> lineRecordReader,
-                GraphState<I, V, E, M> graphState) {
+                RecordReader<LongWritable, Text> lineRecordReader) {
             this.lineRecordReader = lineRecordReader;
-            this.graphState = graphState;
         }
 
         @Override

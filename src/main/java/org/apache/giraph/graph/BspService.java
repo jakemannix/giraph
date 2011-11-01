@@ -630,9 +630,8 @@ public abstract class BspService <
 
         this.representativeVertex =
             BspUtils.<I, V, E, M>createVertex(
-                getConfiguration(),
-                getGraphMapper().getGraphState());
-
+                getConfiguration());
+        this.representativeVertex.setGraphState(getGraphMapper().getGraphState());
         this.checkpointFrequency =
             conf.getInt(GiraphJob.CHECKPOINT_FREQUENCY,
                           GiraphJob.CHECKPOINT_FREQUENCY_DEFAULT);

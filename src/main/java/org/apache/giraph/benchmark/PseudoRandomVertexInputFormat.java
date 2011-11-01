@@ -71,7 +71,7 @@ public class PseudoRandomVertexInputFormat<M extends Writable> extends
     public VertexReader<LongWritable, DoubleWritable, DoubleWritable, M>
             createVertexReader(InputSplit split, TaskAttemptContext context)
             throws IOException {
-        return new PseudoRandomVertexReader(getGraphState());
+        return new PseudoRandomVertexReader();
     }
 
     /**
@@ -98,19 +98,15 @@ public class PseudoRandomVertexInputFormat<M extends Writable> extends
 
         private GraphState<LongWritable, DoubleWritable, DoubleWritable, M> graphState;
 
-        public PseudoRandomVertexReader(
-            GraphState<LongWritable, DoubleWritable, DoubleWritable, M> graphState) {
-          this.graphState = graphState;
-        }
+        private Configuration configuration;
 
-        public GraphState<LongWritable, DoubleWritable, DoubleWritable, M> getGraphState() {
-          return graphState;
+        public PseudoRandomVertexReader() {
         }
 
         @Override
         public void initialize(InputSplit inputSplit,
                                TaskAttemptContext context) throws IOException {
-            Configuration configuration = context.getConfiguration();
+            configuration = context.getConfiguration();
             aggregateVertices =
                 configuration.getLong(
                     PseudoRandomVertexInputFormat.AGGREGATE_VERTICES, 0);
@@ -156,8 +152,7 @@ public class PseudoRandomVertexInputFormat<M extends Writable> extends
         public BasicVertex<LongWritable, DoubleWritable, DoubleWritable, M> getCurrentVertex()
             throws IOException, InterruptedException {
             BasicVertex<LongWritable, DoubleWritable, DoubleWritable, M> vertex =
-                BspUtils.createVertex(getGraphState().getContext().getConfiguration(),
-                    getGraphState());
+                BspUtils.createVertex(configuration);
             long vertexId = startingVertexId + verticesRead;
             // Seed on the vertex id to keep the vertex data the same when
             // on different number of workers, but other parameters are the

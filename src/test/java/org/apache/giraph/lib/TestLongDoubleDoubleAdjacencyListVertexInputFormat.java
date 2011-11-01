@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import static org.apache.giraph.lib.TestTextDoubleDoubleAdjacencyListVertexInputFormat.assertValidVertex;
+import static org.apache.giraph.lib.TestTextDoubleDoubleAdjacencyListVertexInputFormat.setGraphState;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -96,7 +97,7 @@ public class TestLongDoubleDoubleAdjacencyListVertexInputFormat extends TestCase
     }
   }
 
-  public void testHappyPath() throws IOException, InterruptedException {
+  public void testHappyPath() throws Exception {
     String input = "42\t0.1\t99\t0.2\t2000\t0.3\t4000\t0.4";
 
     when(rr.getCurrentValue()).thenReturn(new Text(input));
@@ -109,11 +110,16 @@ public class TestLongDoubleDoubleAdjacencyListVertexInputFormat extends TestCase
     assertTrue("Should have been able to read vertex", vr.nextVertex());
     BasicVertex<LongWritable, DoubleWritable, DoubleWritable, BooleanWritable>
         vertex = vr.getCurrentVertex();
-    assertValidVertex(conf, graphState, vertex, new LongWritable(42), new DoubleWritable(0.1), new Edge<LongWritable, DoubleWritable>(new LongWritable(99), new DoubleWritable(0.2)), new Edge<LongWritable, DoubleWritable>(new LongWritable(2000), new DoubleWritable(0.3)), new Edge<LongWritable, DoubleWritable>(new LongWritable(4000), new DoubleWritable(0.4)));
+    setGraphState(vertex, graphState);
+    assertValidVertex(conf, graphState, vertex,
+        new LongWritable(42), new DoubleWritable(0.1),
+        new Edge<LongWritable, DoubleWritable>(new LongWritable(99), new DoubleWritable(0.2)),
+        new Edge<LongWritable, DoubleWritable>(new LongWritable(2000), new DoubleWritable(0.3)),
+        new Edge<LongWritable, DoubleWritable>(new LongWritable(4000), new DoubleWritable(0.4)));
     assertEquals(vertex.getNumOutEdges(), 3);
   }
 
-  public void testDifferentSeparators() throws IOException, InterruptedException {
+  public void testDifferentSeparators() throws Exception {
     String input = "12345:42.42:9999999:99.9";
 
     when(rr.getCurrentValue()).thenReturn(new Text(input));
@@ -126,6 +132,7 @@ public class TestLongDoubleDoubleAdjacencyListVertexInputFormat extends TestCase
     assertTrue("Should have been able to read vertex", vr.nextVertex());
     BasicVertex<LongWritable, DoubleWritable, DoubleWritable, BooleanWritable>
         vertex = vr.getCurrentVertex();
+    setGraphState(vertex, graphState);
     assertValidVertex(conf, graphState, vertex, new LongWritable(12345), new DoubleWritable(42.42),
        new Edge<LongWritable, DoubleWritable>(new LongWritable(9999999), new DoubleWritable(99.9)));
     assertEquals(vertex.getNumOutEdges(), 1);

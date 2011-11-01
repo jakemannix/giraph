@@ -76,7 +76,7 @@ public class SimpleSuperstepVertex extends
             throws IOException, InterruptedException {
             BasicVertex<LongWritable, IntWritable, FloatWritable, IntWritable> vertex =
                 BspUtils.<LongWritable, IntWritable, FloatWritable, IntWritable>createVertex(
-                    getGraphState().getContext().getConfiguration(), getGraphState());
+                    getGraphState().getContext().getConfiguration());
             LongWritable vertexId = new LongWritable(
                 (inputSplit.getSplitIndex() * totalRecords) + recordsRead);
             IntWritable vertexValue = new IntWritable((int) (vertexId.get() * 10));

@@ -1173,9 +1173,8 @@ public class BspServiceWorker<
         long vertexCount = dataStream.readLong();
         VertexRange<I, V, E, M> vertexRange = getVertexRangeMap().get(maxIndex);
         for (int i = 0; i < vertexCount; ++i) {
-            BasicVertex<I, V, E, M> vertex = BspUtils.<I, V, E, M>createVertex(
-                            getConfiguration(),
-                            getGraphMapper().getGraphState());
+            BasicVertex<I, V, E, M> vertex = BspUtils.<I, V, E, M>createVertex(getConfiguration());
+            vertex.setGraphState(getGraphMapper().getGraphState());
             vertex.readFields(dataStream);
             // Add the vertex
             if (vertexRange.getVertexMap().put(vertex.getVertexId(), vertex)

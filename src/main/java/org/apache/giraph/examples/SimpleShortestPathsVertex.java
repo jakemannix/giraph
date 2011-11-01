@@ -148,7 +148,7 @@ public class SimpleShortestPathsVertex extends
                            DoubleWritable,
                            FloatWritable,
                            DoubleWritable> graphState) {
-            super(lineRecordReader, graphState);
+            super(lineRecordReader);
         }
 
         @Override
@@ -157,8 +157,7 @@ public class SimpleShortestPathsVertex extends
             throws IOException, InterruptedException {
           BasicVertex<LongWritable, DoubleWritable, FloatWritable,
               DoubleWritable> vertex = BspUtils.<LongWritable, DoubleWritable, FloatWritable,
-                  DoubleWritable>createVertex(getContext().getConfiguration(),
-                  graphState);
+                  DoubleWritable>createVertex(getContext().getConfiguration());
 
             Text line = getRecordReader().getCurrentValue();
             try {

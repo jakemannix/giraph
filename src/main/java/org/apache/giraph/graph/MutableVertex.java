@@ -59,7 +59,8 @@ public abstract class MutableVertex<I extends WritableComparable,
     public MutableVertex<I, V, E, M> instantiateVertex() {
         MutableVertex<I, V, E, M> mutableVertex =
             (MutableVertex<I, V, E, M>) BspUtils
-                .createVertex(getContext().getConfiguration(), getGraphState());
+                .createVertex(getContext().getConfiguration());
+        mutableVertex.setGraphState(getGraphState());
         return mutableVertex;
     }
     

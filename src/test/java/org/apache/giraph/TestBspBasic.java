@@ -101,9 +101,8 @@ public class TestBspBasic extends BspCase {
             new GraphState<LongWritable, IntWritable,
                            FloatWritable, IntWritable>();
         BasicVertex<LongWritable, IntWritable, FloatWritable, IntWritable> vertex =
-            BspUtils.createVertex(job.getConfiguration(), gs);
-        System.out.println("testInstantiateVertex: superstep=" +
-                           vertex.getSuperstep());
+            BspUtils.createVertex(job.getConfiguration());
+
         VertexInputFormat<LongWritable, IntWritable, FloatWritable, IntWritable>
             inputFormat = BspUtils.createVertexInputFormat(job.getConfiguration(), gs);
         List<InputSplit> splitArray =

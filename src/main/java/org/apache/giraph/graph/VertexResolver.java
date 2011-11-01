@@ -112,7 +112,9 @@ public class VertexResolver<I extends WritableComparable, V extends Writable,
 
     @Override
     public BasicVertex<I, V, E, M> instantiateVertex() {
-        return BspUtils.createVertex(getConf(), graphState);
+        BasicVertex<I, V, E, M> vertex = BspUtils.<I,V,E,M>createVertex(getConf());
+        vertex.setGraphState(graphState);
+        return vertex;
     }
 
     @Override
