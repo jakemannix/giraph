@@ -23,61 +23,21 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.apache.giraph.examples.SimplePageRankVertex;
 import org.apache.giraph.graph.GiraphJob;
-import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-
-import java.util.Iterator;
 
 /**
  * Benchmark based on the basic Pregel PageRank implementation.
  */
-public class PageRankBenchmark extends
-        Vertex<LongWritable, DoubleWritable, DoubleWritable, DoubleWritable>
-        implements Tool {
+public class PageRankBenchmark extends SimplePageRankVertex implements Tool {
     /** Configuration from Configurable */
     private Configuration conf;
 
     /** How many supersteps to run */
     public static String SUPERSTEP_COUNT = "PageRankBenchmark.superstepCount";
-
-    @Override
-    public void preApplication()
-        throws InstantiationException, IllegalAccessException {
-    }
-
-    @Override
-    public void postApplication() {
-    }
-
-    @Override
-    public void preSuperstep() {
-    }
-
-    @Override
-    public void compute(Iterator<DoubleWritable> msgIterator) {
-        if (getSuperstep() >= 1) {
-            double sum = 0;
-            while (msgIterator.hasNext()) {
-                sum += msgIterator.next().get();
-            }
-            DoubleWritable vertexValue =
-                new DoubleWritable((0.15f / getNumVertices()) + 0.85f * sum);
-            setVertexValue(vertexValue);
-        }
-
-        if (getSuperstep() < getConf().getInt(SUPERSTEP_COUNT, -1)) {
-            long edges = getNumOutEdges();
-            sendMsgToAllEdges(
-                new DoubleWritable(getVertexValue().get() / edges));
-        } else {
-            voteToHalt();
-        }
-    }
 
     @Override
     public Configuration getConf() {

@@ -27,6 +27,7 @@ import org.apache.giraph.graph.VertexInputFormat;
 import org.apache.giraph.graph.VertexReader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -47,7 +48,7 @@ import java.util.Random;
  * (pseudo-random).
  */
 public class PseudoRandomVertexInputFormat<M extends Writable> extends
-        VertexInputFormat<LongWritable, DoubleWritable, DoubleWritable, M> {
+        VertexInputFormat<LongWritable, DoubleWritable, FloatWritable, M> {
     /** Set the number of aggregate vertices */
     public static final String AGGREGATE_VERTICES =
         "pseduoRandomVertexReader.aggregateVertices";
@@ -68,7 +69,7 @@ public class PseudoRandomVertexInputFormat<M extends Writable> extends
     }
 
     @Override
-    public VertexReader<LongWritable, DoubleWritable, DoubleWritable, M>
+    public VertexReader<LongWritable, DoubleWritable, FloatWritable, M>
             createVertexReader(InputSplit split, TaskAttemptContext context)
             throws IOException {
         return new PseudoRandomVertexReader();
@@ -79,7 +80,7 @@ public class PseudoRandomVertexInputFormat<M extends Writable> extends
      * pseudo-randomly generated data
      */
     private static class PseudoRandomVertexReader<M extends Writable> implements
-            VertexReader<LongWritable, DoubleWritable, DoubleWritable, M> {
+            VertexReader<LongWritable, DoubleWritable, FloatWritable, M> {
         /** Logger */
         private static final Logger LOG =
             Logger.getLogger(PseudoRandomVertexReader.class);
@@ -149,9 +150,9 @@ public class PseudoRandomVertexInputFormat<M extends Writable> extends
         }
 
         @Override
-        public BasicVertex<LongWritable, DoubleWritable, DoubleWritable, M> getCurrentVertex()
+        public BasicVertex<LongWritable, DoubleWritable, FloatWritable, M> getCurrentVertex()
             throws IOException, InterruptedException {
-            BasicVertex<LongWritable, DoubleWritable, DoubleWritable, M> vertex =
+            BasicVertex<LongWritable, DoubleWritable, FloatWritable, M> vertex =
                 BspUtils.createVertex(configuration);
             long vertexId = startingVertexId + verticesRead;
             // Seed on the vertex id to keep the vertex data the same when
@@ -159,7 +160,7 @@ public class PseudoRandomVertexInputFormat<M extends Writable> extends
             // same.
             Random rand = new Random(vertexId);
             DoubleWritable vertexValue = new DoubleWritable(rand.nextDouble());
-            Map<LongWritable, DoubleWritable> edges = Maps.newHashMap();
+            Map<LongWritable, FloatWritable> edges = Maps.newHashMap();
             for (long i = 0; i < edgesPerVertex; ++i) {
                 LongWritable destVertexId = null;
                 do {
@@ -167,7 +168,7 @@ public class PseudoRandomVertexInputFormat<M extends Writable> extends
                         new LongWritable(Math.abs(rand.nextLong()) %
                                          aggregateVertices);
                 } while (vertex.hasEdge(destVertexId));
-                edges.put(destVertexId, new DoubleWritable(rand.nextDouble()));
+                edges.put(destVertexId, new FloatWritable((float)rand.nextDouble()));
             }
             vertex.initialize(new LongWritable(vertexId), vertexValue, edges, null);
 
